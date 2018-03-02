@@ -2,13 +2,15 @@ var meister = angular.module('meister', ['ngMaterial', 'ngAnimate','ngSanitize',
  'ngAria', 'ui.router','ngCookies','md.data.table','chart.js','TreeWidget','angular-oauth2']);
 
 meister.constant('SERVER_BASE_URL', "http://localhost:8000");
+meister.constant('CLIENT_SECRET_KEY',"GzkU62Ruwo29riFgJHVDPw377k8hYu5dXXYxgYSR");
 meister.constant('SYSTEM_ADMIN',99);
 meister.constant('CLIENT_ADMIN',49);
 meister.constant('CLIENT_USER',29);
 
+
 (function(app) {
-    app.config(['$stateProvider', '$urlRouterProvider','OAuthProvider','OAuthTokenProvider','SERVER_BASE_URL', 
-        function($stateProvider, $urlRouterProvider, OAuthProvider, OAuthTokenProvider, SERVER_BASE_URL) {
+    app.config(['$stateProvider', '$urlRouterProvider','OAuthProvider','OAuthTokenProvider','SERVER_BASE_URL','CLIENT_SECRET_KEY', 
+        function($stateProvider, $urlRouterProvider, OAuthProvider, OAuthTokenProvider, SERVER_BASE_URL, CLIENT_SECRET_KEY) {
 
         OAuthTokenProvider.configure({
             name: 'meister-sdk-token',
@@ -20,7 +22,7 @@ meister.constant('CLIENT_USER',29);
         OAuthProvider.configure({
               baseUrl: SERVER_BASE_URL,
               clientId: '2',
-              clientSecret: 'y1niuVLjvmDhEBFZXH6653Bh2tlDQHSJeVxr4ZDw', // optional
+              clientSecret: CLIENT_SECRET_KEY, // optional
               grantPath: '/api/login',
               revokePath: '/api/logout'
         });

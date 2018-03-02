@@ -13,7 +13,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('checkClientAdmin', ['only' => ['index', 'types','store','destroy']]);
+        $this->middleware('checkClientAdmin', ['only' => ['index', 'types','store','destroy','update']]);
 
     }
 
@@ -152,6 +152,35 @@ class UserController extends Controller
         
     }
 
+    public function update_my_user(Request $request, $id){
+
+        $userInSession = $request->user();
+
+        $request->validate([
+            'email' => 'required|max:100',
+            'first_name' => 'required|max:120',
+            'last_name' => 'required|max:120'
+        ]);
+
+        if($id != $userInSession->id)
+            throw new Exception("You can't update this User", 1);
+
+        $user = User::find($id);
+        $user->name = $request->input('email');
+        $user->email = $request->input('email');
+        $user->first_name = $request->input('first_name');
+        $user->last_name = $request->input('last_name');
+        
+        if($request->input('password') &&  strlen(trim($request->input('password')))>0){
+            $user->password = bcrypt($request->input('password'));
+        }
+
+        $user->save();
+
+        return $user;
+
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -171,10 +200,10 @@ class UserController extends Controller
         ]);
 
         if($request->input('type')==User::TYPE_SYSTEM_ADMIN && $userInSession->type != User::TYPE_SYSTEM_ADMIN)
-            throw new Exception("You can't create an user type system admin", 1);
+            throw new Exception("You can't update an user type system admin", 1);
 
         if($request->input('type')==User::TYPE_CLIENT_ADMIN && $userInSession->type == User::TYPE_CLIENT_USER)
-            throw new Exception("You can't create an user type client admin", 1);
+            throw new Exception("You can't update an user type client admin", 1);
 
         $user = User::find($id);
         $user->name = $request->input('email');

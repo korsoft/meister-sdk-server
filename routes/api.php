@@ -24,7 +24,8 @@ Route::group(['namespace' => 'Auth'], function () {
 Route::group(['middleware' => ['auth:api']], function () {
    
     Route::post('logout', 'Auth\ApiLoginController@logout');
-    Route::get('types', 'UserController@types')->middleware('checkClientAdmin');
+    Route::get('types', 'UserController@types');
+    Route::put('/users/{id}/update_my_user','UserController@update_my_user');
 
     Route::apiResource('clients', 'ClientController',  
         [

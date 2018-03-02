@@ -68,7 +68,7 @@ class ApiLoginController extends ATC
             return response(["message" => "The user credentials were incorrect.', 6, 'invalid_credentials"], 500);
         }
         catch (Exception $e) {
-            ////return error message
+            Log::info("Exception",["error"=>$e]);
             return response(["message" => "Internal server error"], 500);
         }
     }

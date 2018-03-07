@@ -26,6 +26,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('logout', 'Auth\ApiLoginController@logout');
     Route::get('types', 'UserController@types');
     Route::put('/users/{id}/update_my_user','UserController@update_my_user');
+    Route::get('/clientgateways/{id}/test_connection','ClientGatewayController@test_connection');
 
     Route::apiResource('clients', 'ClientController',  
         [
@@ -37,6 +38,15 @@ Route::group(['middleware' => ['auth:api']], function () {
     );
 
     Route::apiResource('users', 'UserController',  
+        [
+            'except' => 
+                [
+                    'create','edit'
+                ]
+        ]
+    );
+
+    Route::apiResource('clientgateways', 'ClientGatewayController',  
         [
             'except' => 
                 [

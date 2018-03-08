@@ -32,10 +32,11 @@ class ClientGateway extends Model
     protected $dates = ['deleted_at'];
 
      protected $casts = [
-        'auth_type' => 'integer'
+        'auth_type' => 'integer',
+        'client_id' => 'integer'
     ];
 
-    protected $fillable = array('name','url','username','password','auth_type', 'digest', 'consumer_key', 'consumer_secret','token','token_secret', 'created_at','updated_at');
+    protected $fillable = array('name','url','username','password','auth_type', 'client_id','digest', 'consumer_key', 'consumer_secret','token','token_secret','client_id_for_oauth2','client_secret_for_oauth2', 'auth_url_for_oauth2','created_at','updated_at');
 
 
     public function client(){

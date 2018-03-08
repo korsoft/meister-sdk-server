@@ -11,6 +11,8 @@ use Exception;
 
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
+use kamermans\OAuth2\GrantType\PasswordCredentials;
+use kamermans\OAuth2\OAuth2Middleware;
 
 use Log;
 
@@ -79,6 +81,9 @@ class ClientGatewayController extends Controller
         $clientGateway->consumer_secret = $request->input('consumer_secret');
         $clientGateway->token = $request->input('token');
         $clientGateway->token_secret = $request->input('token_secret');
+        $clientGateway->client_id_for_oauth2 = $request->input('client_id_for_oauth2');
+        $clientGateway->client_secret_for_oauth2 = $request->input('client_secret_for_oauth2');
+        $clientGateway->auth_url_for_oauth2 = $request->input('auth_url_for_oauth2');
 
         if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $clientGateway->client_id = $request->input('client_id');
@@ -148,6 +153,9 @@ class ClientGatewayController extends Controller
         $clientGateway->consumer_secret = $request->input('consumer_secret');
         $clientGateway->token = $request->input('token');
         $clientGateway->token_secret = $request->input('token_secret');
+        $clientGateway->client_id_for_oauth2 = $request->input('client_id_for_oauth2');
+        $clientGateway->client_secret_for_oauth2 = $request->input('client_secret_for_oauth2');
+        $clientGateway->auth_url_for_oauth2 = $request->input('auth_url_for_oauth2');
 
         if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $clientGateway->client_id = $request->input('client_id');
@@ -193,8 +201,10 @@ class ClientGatewayController extends Controller
             return [];
 
         } catch(\GuzzleHttp\Exception\ClientException $e){
+            Log::info("ClientException",["result" => $e]);
             throw new Exception("Connection failure", 1);
         } catch(Exception $e){
+            Log::info("Exception",["result" => $e]);
             throw new Exception("Connection failure", 1);
         }
     }
@@ -214,8 +224,6 @@ class ClientGatewayController extends Controller
                 'password' => $clientGateway->password
             ]];
         } else if($clientGateway->auth_type == ClientGateway::AUTH_TYPE_OAUTH){
-            $stack = HandlerStack::create();
-
             $middleware = new Oauth1([
                 'consumer_key'    => $clientGateway->consumer_key,
                 'consumer_secret' => $clientGateway->consumer_secret,
@@ -223,13 +231,38 @@ class ClientGatewayController extends Controller
                 'token_secret'    => $clientGateway->token_secret
             ]);
 
+            $stack = HandlerStack::create();
             $stack->push($middleware);
 
-            $clientGuzz = new \GuzzleHttp\Client([
-                'handler' => $stack
+            $clientGuzz = new \GuzzleHttp\Client();
+
+            $auth  =['handler' => $stack,'auth'    => 'oauth'];
+
+        } else if($clientGateway->auth_type == ClientGateway::AUTH_TYPE_OAUTH_2){
+            $reauth_config = [
+                "client_id" => $clientGateway->client_id_for_oauth2,
+                "client_secret" => $clientGateway->client_secret_for_oauth2,
+                "username" => $clientGateway->username,
+                "password" => $clientGateway->password
+            ];
+
+            $reauth_client = new \GuzzleHttp\Client([
+                'base_uri' => $clientGateway->auth_url_for_oauth2,
             ]);
 
-            $auth  =['auth' => 'oauth'];
+            $grant_type = new PasswordCredentials($reauth_client, $reauth_config);
+
+            $oauth = new OAuth2Middleware($grant_type);
+
+            Log::info("OAuth token",["result"=>$oauth]);
+           
+            $stack = HandlerStack::create();
+            $stack->push($oauth);
+
+            $clientGuzz = new \GuzzleHttp\Client();
+
+            $auth =['handler' => $stack,'auth' => 'oauth'];
+
         }
         
         return $clientGuzz->request('GET',$clientGateway->url,$auth);

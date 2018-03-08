@@ -25,6 +25,11 @@ class User extends Authenticatable
         'email','first_name','last_name','type','client_id'
     ];
 
+    protected $casts = [
+        'type' => 'integer',
+        'client_id' => 'integer'
+    ];
+
     public function client(){
         return $this->belongsTo('App\Client', 'client_id');
     }

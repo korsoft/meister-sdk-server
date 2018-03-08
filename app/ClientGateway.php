@@ -30,6 +30,10 @@ class ClientGateway extends Model
      */
     protected $dates = ['deleted_at'];
 
+     protected $casts = [
+        'auth_type' => 'integer'
+    ];
+
     protected $fillable = array('name','url','username','password','auth_type', 'digest','created_at','updated_at');
 
 

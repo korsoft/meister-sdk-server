@@ -14,7 +14,8 @@
         "laravel/passport": "4.0.3",
         "laravel/tinker": "~1.0",
         "orchestra/parser": "~3.0",
-        "symfony/psr-http-message-bridge": "1.0.2"
+        "symfony/psr-http-message-bridge": "1.0.2",
+         "guzzlehttp/oauth-subscriber": "0.3.*"
     },
     "require-dev": {
         "filp/whoops": "~2.0",

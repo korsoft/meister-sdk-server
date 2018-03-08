@@ -12,6 +12,7 @@ class ClientGateway extends Model
     const AUTH_TYPE_FORM = 1;
     const AUTH_TYPE_DIGEST = 2;
     const AUTH_TYPE_OAUTH = 3;
+    const AUTH_TYPE_OAUTH_2 = 4; 
     
     /**
      * The table associated with the model.
@@ -34,7 +35,7 @@ class ClientGateway extends Model
         'auth_type' => 'integer'
     ];
 
-    protected $fillable = array('name','url','username','password','auth_type', 'digest','created_at','updated_at');
+    protected $fillable = array('name','url','username','password','auth_type', 'digest', 'consumer_key', 'consumer_secret','token','token_secret', 'created_at','updated_at');
 
 
     public function client(){

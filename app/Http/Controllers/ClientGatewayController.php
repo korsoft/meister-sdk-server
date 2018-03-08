@@ -9,6 +9,9 @@ use App\User;
 
 use Exception;
 
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Subscriber\Oauth\Oauth1;
+
 use Log;
 
 class ClientGatewayController extends Controller
@@ -62,8 +65,6 @@ class ClientGatewayController extends Controller
         $request->validate([
             'name' => 'required|max:120',
             'url' => 'required',
-            'username' => 'required|max:120',
-            'password' => 'required|max:120',
             'auth_type' => 'required'
         ]);
 
@@ -74,6 +75,10 @@ class ClientGatewayController extends Controller
         $clientGateway->password = $request->input('password');
         $clientGateway->auth_type = $request->input('auth_type');
         $clientGateway->digest = $request->input('digest');
+        $clientGateway->consumer_key = $request->input('consumer_key');
+        $clientGateway->consumer_secret = $request->input('consumer_secret');
+        $clientGateway->token = $request->input('token');
+        $clientGateway->token_secret = $request->input('token_secret');
 
         if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $clientGateway->client_id = $request->input('client_id');
@@ -129,8 +134,6 @@ class ClientGatewayController extends Controller
         $request->validate([
             'name' => 'required|max:120',
             'url' => 'required',
-            'username' => 'required|max:120',
-            'password' => 'required|max:120',
             'auth_type' => 'required'
         ]);
 
@@ -141,6 +144,10 @@ class ClientGatewayController extends Controller
         $clientGateway->password = $request->input('password');
         $clientGateway->auth_type = $request->input('auth_type');
         $clientGateway->digest = $request->input('digest');
+        $clientGateway->consumer_key = $request->input('consumer_key');
+        $clientGateway->consumer_secret = $request->input('consumer_secret');
+        $clientGateway->token = $request->input('token');
+        $clientGateway->token_secret = $request->input('token_secret');
 
         if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $clientGateway->client_id = $request->input('client_id');
@@ -176,6 +183,24 @@ class ClientGatewayController extends Controller
         if(!$clientGateway)
             throw new Exception("Error the gateway doesn't exist", 1);
 
+        try {
+            
+            $response = self::response_connection($clientGateway);
+
+           if($response->getStatusCode()!="200")
+               throw new Exception("Connection failure", 1);
+
+            return [];
+
+        } catch(\GuzzleHttp\Exception\ClientException $e){
+            throw new Exception("Connection failure", 1);
+        } catch(Exception $e){
+            throw new Exception("Connection failure", 1);
+        }
+    }
+
+    protected static function response_connection($clientGateway){
+
         $clientGuzz = new \GuzzleHttp\Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false), )); 
 
         $auth = [];
@@ -189,22 +214,24 @@ class ClientGatewayController extends Controller
                 'password' => $clientGateway->password
             ]];
         } else if($clientGateway->auth_type == ClientGateway::AUTH_TYPE_OAUTH){
+            $stack = HandlerStack::create();
 
+            $middleware = new Oauth1([
+                'consumer_key'    => $clientGateway->consumer_key,
+                'consumer_secret' => $clientGateway->consumer_secret,
+                'token'           => $clientGateway->token,
+                'token_secret'    => $clientGateway->token_secret
+            ]);
+
+            $stack->push($middleware);
+
+            $clientGuzz = new \GuzzleHttp\Client([
+                'handler' => $stack
+            ]);
+
+            $auth  =['auth' => 'oauth'];
         }
-
-        try {
-            
-            $response = $clientGuzz->request('GET',$clientGateway->url,$auth);
-
-            if($response->getStatusCode()!="200")
-               throw new Exception("Connection failure", 1);
-
-             return [];
-
-        } catch(\GuzzleHttp\Exception\ClientException $e){
-            throw new Exception("Connection failure", 1);
-        } catch(Exception $e){
-            throw new Exception("Connection failure", 1);
-        }
+        
+        return $clientGuzz->request('GET',$clientGateway->url,$auth);
     }
 }

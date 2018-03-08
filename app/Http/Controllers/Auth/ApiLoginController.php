@@ -16,14 +16,19 @@ class ApiLoginController extends ATC
 {
 
     public function logout(Request $request){
-        $request->user()->token()->revoke();
 
-        $json = [
-            'success' => true,
-            'code' => 200,
-            'message' => 'You are Logged out.',
-        ];
-        return response()->json($json, '200');
+        if($request->user()!=null){
+            $request->user()->token()->revoke();
+
+            $json = [
+                'success' => true,
+                'code' => 200,
+                'message' => 'You are Logged out.',
+            ];
+            return response()->json($json, '200');
+        } else {
+            return response()->json(["success" => true, "code" => 200, "message" => "You haven't a user session"]);
+        }
     }
 
     public function issueToken(ServerRequestInterface $request)
@@ -54,7 +59,7 @@ class ApiLoginController extends ATC
                 throw new OAuthServerException('The user credentials were incorrect.', 6, 'invalid_credentials', 401);
             
             $data["user_id"] = $user->id;
-            $data["user_type"] = (int)$user->type;
+            $data["user_type"] = $user->type;
             $data["user_email"] = $user->email;
 
             return Response::json($data);

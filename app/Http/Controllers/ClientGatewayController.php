@@ -209,6 +209,32 @@ class ClientGatewayController extends Controller
         }
     }
 
+    public function execute(Request $request, $id){
+        $clientGateway = ClientGateway::find($id);
+
+        if(!$clientGateway)
+            throw new Exception("Error the gateway doesn't exist", 1);
+
+        try {
+            
+            $response = self::response_connection($clientGateway);
+
+           if($response->getStatusCode()!="200")
+               throw new Exception("Connection failure", 1);
+
+            $body = (string) $response->getBody();
+
+            return json_decode($body, true);
+
+        } catch(\GuzzleHttp\Exception\ClientException $e){
+            Log::info("ClientException",["result" => $e]);
+            throw new Exception("Connection failure", 1);
+        } catch(Exception $e){
+            Log::info("Exception",["result" => $e]);
+            throw new Exception("Connection failure", 1);
+        }
+    }
+
     protected static function response_connection($clientGateway){
 
         $clientGuzz = new \GuzzleHttp\Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false), )); 

@@ -28,12 +28,16 @@ class AuthServiceProvider extends ServiceProvider
 
         //
 
-        Passport::tokensCan([
+        /*Passport::tokensCan([
             'system-admin' => 'System Admin User',
             'client-admin' => 'Client Admin User',
             'client-user'  => 'Client User'
-        ]);
+        ]);*/
 
         Passport::routes();
+
+        Passport::tokensExpireIn((new \DateTime())->add(new \DateInterval('PT30M')));
+
+        Passport::refreshTokensExpireIn((new \DateTime())->add(new \DateInterval('PT30M')));
     }
 }

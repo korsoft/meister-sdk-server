@@ -36,8 +36,8 @@ class AuthServiceProvider extends ServiceProvider
 
         Passport::routes();
 
-        Passport::tokensExpireIn((new \DateTime())->add(new \DateInterval('PT30M')));
+        //Passport::tokensExpireIn((new \DateTime())->add(new \DateInterval('PT30M')));
 
-        Passport::refreshTokensExpireIn((new \DateTime())->add(new \DateInterval('PT30M')));
+        //Passport::refreshTokensExpireIn((new \DateTime())->add(new \DateInterval('PT30M')));
     }
 }

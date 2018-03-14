@@ -15,6 +15,7 @@ use Auth;
 class ApiLoginController extends ATC
 {
 
+
     public function logout(Request $request){
 
         if($request->user()!=null){

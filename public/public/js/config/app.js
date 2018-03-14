@@ -114,12 +114,11 @@ meister.constant('COOKIE_MAX_TIMEOUT_REQUEST',30); //in minutes
                 console.log("resultInMinutes",resultInMinutes);
                 if(resultInMinutes>COOKIE_MAX_TIMEOUT_REQUEST){
                   console.log("Revoke token authentication...");
-                  $rootScope.OAuth.revokeToken();
-                  $cookies.remove('meister-sdk-token');
-                  $cookies.remove(COOKIE_LAST_REQUEST);
-               }
-              }
-              $cookies.put(COOKIE_LAST_REQUEST,Date.now());
+                   $rootScope.logout();
+                } 
+              } 
+              
+              $cookies.put(COOKIE_LAST_REQUEST,Date.now());  
               //console.log("request interceptor---->",config);
               var deferred = $q.defer();
               deferred.resolve(config);

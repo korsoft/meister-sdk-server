@@ -67,6 +67,8 @@ class ClientGatewayController extends Controller
         $request->validate([
             'name' => 'required|max:120',
             'url' => 'required',
+            'endpoint_master' => 'required',
+            'endpoint_lookup' => 'required',
             'auth_type' => 'required'
         ]);
 
@@ -84,6 +86,8 @@ class ClientGatewayController extends Controller
         $clientGateway->client_id_for_oauth2 = $request->input('client_id_for_oauth2');
         $clientGateway->client_secret_for_oauth2 = $request->input('client_secret_for_oauth2');
         $clientGateway->auth_url_for_oauth2 = $request->input('auth_url_for_oauth2');
+        $clientGateway->endpoint_master = $request->input('endpoint_master');
+        $clientGateway->endpoint_lookup = $request->input('endpoint_lookup');
 
         if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $clientGateway->client_id = $request->input('client_id');
@@ -139,6 +143,8 @@ class ClientGatewayController extends Controller
         $request->validate([
             'name' => 'required|max:120',
             'url' => 'required',
+            'endpoint_master' => 'required',
+            'endpoint_lookup' => 'required',
             'auth_type' => 'required'
         ]);
 
@@ -156,6 +162,8 @@ class ClientGatewayController extends Controller
         $clientGateway->client_id_for_oauth2 = $request->input('client_id_for_oauth2');
         $clientGateway->client_secret_for_oauth2 = $request->input('client_secret_for_oauth2');
         $clientGateway->auth_url_for_oauth2 = $request->input('auth_url_for_oauth2');
+        $clientGateway->endpoint_master = $request->input('endpoint_master');
+        $clientGateway->endpoint_lookup = $request->input('endpoint_lookup');
 
         if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $clientGateway->client_id = $request->input('client_id');
@@ -235,7 +243,42 @@ class ClientGatewayController extends Controller
         }
     }
 
-    protected static function response_connection($clientGateway){
+    public function execute_changes(Request $request, $id){
+        
+        $request->validate([
+            'json' => 'required'
+        ]);
+
+        $json = $request->input("json");
+
+        Log::info("execute_changes",["json"=>$json]);
+        
+        $clientGateway = ClientGateway::find($id);
+
+        if(!$clientGateway)
+            throw new Exception("Error the gateway doesn't exist", 1);
+
+        try {
+            
+            $response = self::response_connection($clientGateway, $json);
+
+           if($response->getStatusCode()!="200")
+               throw new Exception("Connection failure", 1);
+
+            $body = (string) $response->getBody();
+
+            return json_decode($body, true);
+
+        } catch(\GuzzleHttp\Exception\ClientException $e){
+            Log::info("ClientException",["result" => $e]);
+            throw new Exception("Connection failure", 1);
+        } catch(Exception $e){
+            Log::info("Exception",["result" => $e]);
+            throw new Exception("Connection failure", 1);
+        }
+    }
+
+    protected static function response_connection($clientGateway, $json = null){
 
         $clientGuzz = new \GuzzleHttp\Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false), )); 
 
@@ -290,7 +333,31 @@ class ClientGatewayController extends Controller
             $auth =['handler' => $stack,'auth' => 'oauth'];
 
         }
+
+        $auth["query"] = self::getQueryParamsForGateway($clientGateway, $json);
+
+        Log::info("Auth",$auth);
         
         return $clientGuzz->request('GET',$clientGateway->url,$auth);
     }
+
+    protected static function  getQueryParamsForGateway($clientGateway, $json = null){
+        if($json == null){
+            $query = [
+                "Endpoint" => "'" . $clientGateway->endpoint_lookup . "'",
+                "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"Default\"}]'",
+                "Json" => "'{\"TYPE\":\"C\"}'",
+                "\$format" => "json"
+            ];
+        } else {
+            $query = [
+                "Endpoint" => "'" . $clientGateway->endpoint_master . "'",
+                "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"Default\"}]'",
+                "Json" => "'".$json."'",
+                "\$format" => "json"
+            ];
+        }
+        return $query;
+    }
+
 }

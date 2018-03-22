@@ -28,6 +28,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::put('/users/{id}/update_my_user','UserController@update_my_user');
     Route::get('/clientgateways/{id}/test_connection','ClientGatewayController@test_connection');
     Route::get('/clientgateways/{id}/execute','ClientGatewayController@execute');
+    Route::post('/clientgateways/{id}/execute','ClientGatewayController@execute_changes');
 
     Route::apiResource('clients', 'ClientController',  
         [

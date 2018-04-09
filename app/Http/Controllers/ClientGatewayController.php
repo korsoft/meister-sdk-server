@@ -278,7 +278,42 @@ class ClientGatewayController extends Controller
         }
     }
 
-    protected static function response_connection($clientGateway, $json = null){
+    public function execute_endpoint(Request $request, $id){
+        $request->validate([
+            'endpoint' => 'required'
+        ]);
+
+        $endpoint = $request->input("endpoint");
+
+         Log::info("execute_endpoint",["endpoint"=>$endpoint]);
+        
+        $clientGateway = ClientGateway::find($id);
+
+        if(!$clientGateway)
+            throw new Exception("Error the gateway doesn't exist", 1);
+
+        try {
+            
+            $response = self::response_connection($clientGateway, $endpoint, $request->input('json'));
+
+           if($response->getStatusCode()!="200")
+               throw new Exception("Connection failure", 1);
+
+            $body = (string) $response->getBody();
+
+            return json_decode($body, true);
+
+        } catch(\GuzzleHttp\Exception\ClientException $e){
+            Log::info("ClientException",["result" => $e]);
+            throw new Exception("Connection failure", 1);
+        } catch(Exception $e){
+            Log::info("Exception",["result" => $e]);
+            throw new Exception("Connection failure", 1);
+        }
+
+    }
+
+    protected static function response_connection($clientGateway, $endpoint = null, $json = null){
 
         $clientGuzz = new \GuzzleHttp\Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false), )); 
 
@@ -334,25 +369,41 @@ class ClientGatewayController extends Controller
 
         }
 
-        $auth["query"] = self::getQueryParamsForGateway($clientGateway, $json);
+        $auth["query"] = self::getQueryParamsForGateway($clientGateway, $endpoint, $json);
 
         Log::info("Auth",$auth);
         
-        return $clientGuzz->request('GET',$clientGateway->url,$auth);
+        $c =  $clientGuzz->request('GET',$clientGateway->url,$auth);
+
+        return $c;
     }
 
-    protected static function  getQueryParamsForGateway($clientGateway, $json = null){
-        if($json == null){
+    protected static function  getQueryParamsForGateway($clientGateway, $endpoint = null, $json = null){
+        if($json == null && $endpoint == null){
             $query = [
                 "Endpoint" => "'" . $clientGateway->endpoint_lookup . "'",
                 "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"Default\"}]'",
                 "Json" => "'{\"TYPE\":\"C\"}'",
                 "\$format" => "json"
             ];
-        } else {
+        } else if($json != null && $endpoint == null){
             $query = [
                 "Endpoint" => "'" . $clientGateway->endpoint_master . "'",
                 "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"Default\"}]'",
+                "Json" => "'".$json."'",
+                "\$format" => "json"
+            ];
+        } else if($endpoint != null && $json == null){
+            $query = [
+                "Endpoint" => "'" . $endpoint . "'",
+                "Parms" => "'[{\"METADATA\":\"X\"}]'",
+                "Json" => "''",
+                "\$format" => "json"
+            ];
+        } else {
+            $query = [
+                "Endpoint" => "'" . $endpoint . "'",
+                "Parms" => "'[{\"METADATA\":\"X\"}]'",
                 "Json" => "'".$json."'",
                 "\$format" => "json"
             ];

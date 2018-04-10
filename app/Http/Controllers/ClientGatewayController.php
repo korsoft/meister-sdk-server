@@ -203,7 +203,7 @@ class ClientGatewayController extends Controller
             
             $response = self::response_connection($clientGateway);
 
-           if($response->getStatusCode()!="200")
+           if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
 
             return [];
@@ -227,10 +227,10 @@ class ClientGatewayController extends Controller
             
             $response = self::response_connection($clientGateway);
 
-           if($response->getStatusCode()!="200")
+           if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
 
-            $body = (string) $response->getBody();
+            $body = (string) $response["response"]->getBody();
 
             return json_decode($body, true);
 
@@ -262,10 +262,10 @@ class ClientGatewayController extends Controller
             
             $response = self::response_connection($clientGateway, $json);
 
-           if($response->getStatusCode()!="200")
+           if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
 
-            $body = (string) $response->getBody();
+            $body = (string) $response["response"]->getBody();
 
             return json_decode($body, true);
 
@@ -296,12 +296,15 @@ class ClientGatewayController extends Controller
             
             $response = self::response_connection($clientGateway, $endpoint, $request->input('json'), $request->input('style'));
 
-           if($response->getStatusCode()!="200")
+           if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
 
-            $body = (string) $response->getBody();
+            $body = (string) $response["response"]->getBody();
 
-            return json_decode($body, true);
+            return [
+                "url" => $response["url"],
+                "data" => json_decode($body, true)
+            ]; 
 
         } catch(\GuzzleHttp\Exception\ClientException $e){
             Log::info("ClientException",["result" => $e]);
@@ -375,8 +378,26 @@ class ClientGatewayController extends Controller
         
         $c =  $clientGuzz->request('GET',$clientGateway->url,$auth);
 
-        return $c;
+        $url = $clientGateway->url . "?" . self::build_http_query($auth["query"]);
+
+        Log::info("url: " . $url);
+
+        return [
+            "url" => $url,
+            "response" => $c
+        ];
     }
+
+    protected static function build_http_query( $query ){
+
+        $query_array = array();
+        foreach( $query as $key => $key_value ){
+            $query_array[] = $key . '=' . $key_value; //urlencode( $key ) . '=' . urlencode( $key_value );
+        }
+        return implode( '&', $query_array );
+    }
+
+
 
     protected static function  getQueryParamsForGateway($clientGateway, $endpoint = null, $json = null, $style = null){
         if($json == null && $endpoint == null){

@@ -16,6 +16,8 @@
 		$scope.endpointsTree = [];
 		$scope.payloadsTree = [];
 
+		$scope.url_details = "";
+
 		$scope.loading_tree = false;
 
 		$scope.init = function(){
@@ -45,7 +47,7 @@
 			$scope.endpointsTree = [];
 			$scope.payloadsTree = [];
 			$scope.payload_json = {json: null, options: {mode: 'tree'}};
-
+			$scope.url_details = "";
 			var rootNode = {
 				name: $scope.gatewaySelected.name,
 				children: []
@@ -137,6 +139,7 @@
 		$scope.changeGateway = function(id){
 			console.log("changeGateway",id);
 			$scope.loading_tree = true;
+			$scope.url_details = "";
 			$scope.gatewaySelectedId = id;
 			$scope.nodeSelected = null;
 			$scope.nodeExpanded = null;
@@ -168,7 +171,37 @@
 			$scope.promise.then(
 				function(result){
 					console.log("result",result);
-					$scope.payload_json.json = angular.fromJson(result.data.d.results[0].Json);
+					$scope.payload_json.json = angular.fromJson(result.data.data.d.results[0].Json);
+				},
+				function(error){
+					console.log('failure', error);
+                    MessageUtil.showError(error.data.message);
+				}
+			);
+		};
+
+		$scope.execute_details = function(event, node){
+			console.log("Execute details event",node);
+			var params = {
+				"endpoint": node.name,
+				"json": JSON.stringify($scope.payload_json.json,null,"    ")
+			};
+			$scope.promise = GatewayService.execute_endpoint($scope.gatewaySelected.id,params);
+			$scope.promise.then(
+				function(result){
+					console.log("result",result);
+					$scope.url_details = result.data.url;
+					$mdDialog.show({
+		                controller: 'ResponseEndpointExecutionDialogController',
+		                templateUrl: 'templates/response-endpoint-execution.html',
+		                parent: angular.element(document.body),
+		                targetEvent: event,
+		                clickOutsideToClose:false,
+		                escapeToClose: false,
+		                locals: {
+		                 json: angular.fromJson(result.data.data.d.results[0].Json)
+		               }
+		              });
 				},
 				function(error){
 					console.log('failure', error);
@@ -188,6 +221,7 @@
 	     $scope.$on('selection-changed', function (e, node) {
 	        console.log("Node selected",node);
 	        $scope.payload_json = {json: null, options: {mode: 'tree'}};
+	        $scope.url_details = "";
 	        $scope.nodeSelected = node;
 	    });
 

@@ -294,7 +294,7 @@ class ClientGatewayController extends Controller
 
         try {
             
-            $response = self::response_connection($clientGateway, $endpoint, $request->input('json'));
+            $response = self::response_connection($clientGateway, $endpoint, $request->input('json'), $request->input('style'));
 
            if($response->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
@@ -313,7 +313,7 @@ class ClientGatewayController extends Controller
 
     }
 
-    protected static function response_connection($clientGateway, $endpoint = null, $json = null){
+    protected static function response_connection($clientGateway, $endpoint = null, $json = null, $style = null){
 
         $clientGuzz = new \GuzzleHttp\Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false), )); 
 
@@ -369,7 +369,7 @@ class ClientGatewayController extends Controller
 
         }
 
-        $auth["query"] = self::getQueryParamsForGateway($clientGateway, $endpoint, $json);
+        $auth["query"] = self::getQueryParamsForGateway($clientGateway, $endpoint, $json, $style);
 
         Log::info("Auth",$auth);
         
@@ -378,7 +378,7 @@ class ClientGatewayController extends Controller
         return $c;
     }
 
-    protected static function  getQueryParamsForGateway($clientGateway, $endpoint = null, $json = null){
+    protected static function  getQueryParamsForGateway($clientGateway, $endpoint = null, $json = null, $style = null){
         if($json == null && $endpoint == null){
             $query = [
                 "Endpoint" => "'" . $clientGateway->endpoint_lookup . "'",
@@ -400,13 +400,23 @@ class ClientGatewayController extends Controller
                 "Json" => "''",
                 "\$format" => "json"
             ];
-        } else {
-            $query = [
-                "Endpoint" => "'" . $endpoint . "'",
-                "Parms" => "'[{\"METADATA\":\"X\"}]'",
-                "Json" => "'".$json."'",
-                "\$format" => "json"
-            ];
+        } else if($endpoint != null && $json != null){
+            if($style != null){
+                $query = [
+                    "Endpoint" => "'" . $endpoint . "'",
+                    "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"" . $style . "\"}]'",
+                    "Json" => "'".$json."'",
+                    "\$format" => "json"
+                ];
+            } else {
+                $query = [
+                    "Endpoint" => "'" . $endpoint . "'",
+                    "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\"}]'",
+                    "Json" => "'".$json."'",
+                    "\$format" => "json"
+                ];
+            }
+            
         }
         return $query;
     }

@@ -260,7 +260,7 @@ class ClientGatewayController extends Controller
 
         try {
             
-            $response = self::response_connection($clientGateway, $json);
+            $response = self::response_connection($clientGateway, null, $json);
 
            if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);

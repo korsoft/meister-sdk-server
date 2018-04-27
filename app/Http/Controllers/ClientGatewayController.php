@@ -301,10 +301,26 @@ class ClientGatewayController extends Controller
 
             $body = (string) $response["response"]->getBody();
 
+            $result = json_decode($body, true);
+
+            Log::info("Result",["response" => $result]);
+
+            if(is_array($result) && count($result)>0){
+                if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
+                    $report = $result["d"]["results"][0];
+                    if(isset($report["Json"])){
+                        return [
+                            "url" => $response["url"],
+                            "data" => json_decode($report["Json"], true)
+                        ]; 
+                    }
+                }
+            }
+
             return [
                 "url" => $response["url"],
-                "data" => json_decode($body, true)
-            ]; 
+                "data" => []
+            ];
 
         } catch(\GuzzleHttp\Exception\ClientException $e){
             Log::info("ClientException",["result" => $e]);

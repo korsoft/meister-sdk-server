@@ -294,7 +294,9 @@ class ClientGatewayController extends Controller
 
         try {
             
-            $response = self::response_connection($clientGateway, $endpoint, $request->input('json'), $request->input('style'));
+            $compression = $request->input('compression');
+
+            $response = self::response_connection($clientGateway, $endpoint, $request->input('json'), $request->input('style'), $compression);
 
            if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
@@ -308,6 +310,14 @@ class ClientGatewayController extends Controller
             if(is_array($result) && count($result)>0){
                 if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
                     $report = $result["d"]["results"][0];
+                    if($compression === 'O'){
+                        $json = self::unzip_json($report["Json"]);
+                        Log::info("Result uncompress",["response"=>$json]);
+                        return [
+                            "url" => $response["url"],
+                            "data" => json_decode($json, true)
+                        ]; 
+                    }
                     if(isset($report["Json"])){
                         return [
                             "url" => $response["url"],
@@ -332,7 +342,40 @@ class ClientGatewayController extends Controller
 
     }
 
-    protected static function response_connection($clientGateway, $endpoint = null, $json = null, $style = null){
+    protected static function unzip_json($json_binnary){
+        $bytes = self::StringToByteArray($json_binnary);
+        Log::info("Bytes",$bytes);
+       return  gzdecode (implode("",$bytes));
+    }
+
+    protected static function unzipByteArray($data){
+      /*this firts is a directory*/
+      $head = unpack("Vsig/vver/vflag/vmeth/vmodt/vmodd/Vcrc/Vcsize/Vsize/vnamelen/vexlen", substr($data,0,30));
+      $filename = substr($data,30,$head['namelen']);
+      $if=30+$head['namelen']+$head['exlen']+$head['csize'];
+     /*this second is the actua file*/
+      $head = unpack("Vsig/vver/vflag/vmeth/vmodt/vmodd/Vcrc/Vcsize/Vsize/vnamelen/vexlen", substr($data,$if,30));
+      $raw = gzinflate(substr($data,$if+$head['namelen']+$head['exlen']+30,$head['csize']));
+      /*you can create a loop and continue decompressing more files if the were*/
+      return $raw;
+    }
+
+    protected static function StringToByteArray($st){
+        $h = str_replace(array("\\", "\\r","\\n"), '', $st);
+        $NumberChars = strlen($h) / 2;
+        $bytes = [];
+        for($i=0; $i < $NumberChars; $i++){
+            $newChars = $h[$i].$h[$i+1];
+            Log::info("newChar:".$newChars);
+            $bytes[$i] = (int)$newChars; //unpack('C*', $newChars);
+
+        }
+
+            return $bytes;
+        
+    }
+
+    protected static function response_connection($clientGateway, $endpoint = null, $json = null, $style = null, $compression = null){
 
         $clientGuzz = new \GuzzleHttp\Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false), )); 
 
@@ -388,7 +431,7 @@ class ClientGatewayController extends Controller
 
         }
 
-        $auth["query"] = self::getQueryParamsForGateway($clientGateway, $endpoint, $json, $style);
+        $auth["query"] = self::getQueryParamsForGateway($clientGateway, $endpoint, $json, $style, $compression);
 
         Log::info("Auth",$auth);
         
@@ -415,7 +458,7 @@ class ClientGatewayController extends Controller
 
 
 
-    protected static function  getQueryParamsForGateway($clientGateway, $endpoint = null, $json = null, $style = null){
+    protected static function  getQueryParamsForGateway($clientGateway, $endpoint = null, $json = null, $style = null, $compression = null){
         if($json == null && $endpoint == null){
             $query = [
                 "Endpoint" => "'" . $clientGateway->endpoint_lookup . "'",
@@ -441,7 +484,7 @@ class ClientGatewayController extends Controller
             if($style != null){
                 $query = [
                     "Endpoint" => "'" . $endpoint . "'",
-                    "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"" . $style . "\"}]'",
+                    "Parms" => "'[{\"COMPRESSION\":\"" . ($compression!=null ? $compression : "") . "\",\"TEST_RUN\":\"\",\"STYLE\":\"" . $style . "\"}]'",
                     "Json" => "'".$json."'",
                     "\$format" => "json"
                 ];

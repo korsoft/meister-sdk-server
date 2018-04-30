@@ -311,11 +311,10 @@ class ClientGatewayController extends Controller
                 if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
                     $report = $result["d"]["results"][0];
                     if($compression === 'O'){
-                        $json = self::unzip_json($report["Json"]);
-                        Log::info("Result uncompress",["response"=>$json]);
                         return [
                             "url" => $response["url"],
-                            "data" => json_decode($json, true)
+                            "data" => self::StringToByteArray($report["Json"]),
+                            "compression" => "O"
                         ]; 
                     }
                     if(isset($report["Json"])){
@@ -342,37 +341,17 @@ class ClientGatewayController extends Controller
 
     }
 
-    protected static function unzip_json($json_binnary){
-        $bytes = self::StringToByteArray($json_binnary);
-        Log::info("Bytes",$bytes);
-       return  gzdecode (implode("",$bytes));
-    }
-
-    protected static function unzipByteArray($data){
-      /*this firts is a directory*/
-      $head = unpack("Vsig/vver/vflag/vmeth/vmodt/vmodd/Vcrc/Vcsize/Vsize/vnamelen/vexlen", substr($data,0,30));
-      $filename = substr($data,30,$head['namelen']);
-      $if=30+$head['namelen']+$head['exlen']+$head['csize'];
-     /*this second is the actua file*/
-      $head = unpack("Vsig/vver/vflag/vmeth/vmodt/vmodd/Vcrc/Vcsize/Vsize/vnamelen/vexlen", substr($data,$if,30));
-      $raw = gzinflate(substr($data,$if+$head['namelen']+$head['exlen']+30,$head['csize']));
-      /*you can create a loop and continue decompressing more files if the were*/
-      return $raw;
-    }
-
     protected static function StringToByteArray($st){
         $h = str_replace(array("\\", "\\r","\\n"), '', $st);
-        $NumberChars = strlen($h) / 2;
+        $NumberChars = strlen($h);
         $bytes = [];
-        for($i=0; $i < $NumberChars; $i++){
+        $cont = 0;
+        for($i=0; $i < $NumberChars; $i+=2){
             $newChars = $h[$i].$h[$i+1];
-            Log::info("newChar:".$newChars);
-            $bytes[$i] = (int)$newChars; //unpack('C*', $newChars);
+            $bytes[$cont++] = hexdec($newChars);
 
         }
-
-            return $bytes;
-        
+        return $bytes;   
     }
 
     protected static function response_connection($clientGateway, $endpoint = null, $json = null, $style = null, $compression = null){

@@ -49,6 +49,10 @@ class UserController extends Controller
                     "name" => "System Admin"
                 ],
                 [
+                    "id" => User::TYPE_SYSTEM_INTEGRATOR,
+                    "name" => "System Integrator"
+                ],
+                [
                     "id" => User::TYPE_CLIENT_ADMIN,
                     "name" => "Client Admin"  
                 ],
@@ -109,6 +113,9 @@ class UserController extends Controller
         if($request->input('type')==User::TYPE_CLIENT_ADMIN && $userInSession->type == User::TYPE_CLIENT_USER)
             throw new Exception("You can't create an user type client admin", 1);
 
+        if($request->input('type')==User::TYPE_SYSTEM_INTEGRATOR && $userInSession->type < User::TYPE_SYSTEM_ADMIN)
+            throw new Exception("You can't create an user type system integrator", 1);
+
         $user = new User;
         $user->name = $request->input('email');
         $user->email = $request->input('email');
@@ -119,6 +126,8 @@ class UserController extends Controller
 
         if($request->input('type') == User::TYPE_SYSTEM_ADMIN)
             $user->client_id = null;
+        else if($userInSession->type == User::TYPE_SYSTEM_INTEGRATOR)
+            $user->client_id = $request->input('client_id');
         else if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $user->client_id = $request->input('client_id');
         else if($userInSession->type != User::TYPE_SYSTEM_ADMIN)
@@ -205,6 +214,9 @@ class UserController extends Controller
         if($request->input('type')==User::TYPE_CLIENT_ADMIN && $userInSession->type == User::TYPE_CLIENT_USER)
             throw new Exception("You can't update an user type client admin", 1);
 
+        if($request->input('type')==User::TYPE_SYSTEM_INTEGRATOR && $userInSession->type < User::TYPE_SYSTEM_ADMIN)
+            throw new Exception("You can't create an user type system integrator", 1);
+
         $user = User::find($id);
         $user->name = $request->input('email');
         $user->email = $request->input('email');
@@ -215,6 +227,8 @@ class UserController extends Controller
 
         if($request->input('type') == User::TYPE_SYSTEM_ADMIN)
             $user->client_id = null;
+        else if($userInSession->type == User::TYPE_SYSTEM_INTEGRATOR)
+            $user->client_id = $request->input('client_id');
         else if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $user->client_id = $request->input('client_id');
         else if($userInSession->type != User::TYPE_SYSTEM_ADMIN)

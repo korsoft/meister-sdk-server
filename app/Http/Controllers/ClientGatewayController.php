@@ -343,6 +343,7 @@ class ClientGatewayController extends Controller
 
     protected static function StringToByteArray($st){
         $h = str_replace(array("\\", "\\r","\\n"), '', $st);
+        Log::info($st);
         $NumberChars = strlen($h);
         $bytes = [];
         $cont = 0;
@@ -478,6 +479,18 @@ class ClientGatewayController extends Controller
             
         }
         return $query;
+    }
+
+    public function compress($string){
+        $stringCompress = gzencode($string);
+        $stringhex="";
+        for ($i=0; $i<strlen($stringCompress); $i++){
+            $ord = ord($stringCompress[$i]);
+            $hexCode = dechex($ord);
+            $stringhex .= substr('0'.$hexCode, -2);
+        }
+
+        return $stringhex;
     }
 
 }

@@ -62,5 +62,6 @@ class Kernel extends HttpKernel
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
         'checkClientAdmin' => \App\Http\Middleware\CheckClientAdmin::class,
         'checkSystemAdmin' => \App\Http\Middleware\CheckSystemAdmin::class,
+        'checkSystemIntegrator' => \App\Http\Middleware\CheckSystemIntegrator::class,
     ];
 }

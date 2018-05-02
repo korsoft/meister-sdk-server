@@ -6,7 +6,7 @@ use Closure;
 
 use App\User;
 
-class CheckSystemAdmin
+class CheckSystemIntegrator
 {
     /**
      * Handle an incoming request.

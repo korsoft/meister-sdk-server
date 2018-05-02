@@ -38,7 +38,7 @@ class ClientGatewayController extends Controller
 
         if($user->type == User::TYPE_SYSTEM_ADMIN){
             return ClientGateway::with('client')->get();
-        } else if($user->type == User::TYPE_CLIENT_ADMIN){
+        } else if($user->type == User::TYPE_CLIENT_ADMIN || $user->type == User::TYPE_SYSTEM_INTEGRATOR){
             return ClientGateway::where('client_id',$user->client_id)->with('client')->get();
         } 
         return [];
@@ -186,6 +186,9 @@ class ClientGatewayController extends Controller
         $user = $request->user();
 
         if($user->type == User::TYPE_CLIENT_ADMIN && $user->client_id != $clientGateway->client_id)
+            throw new Exception("You can't delete the gateway from another client", 1);
+
+        if($user->type == User::TYPE_SYSTEM_INTEGRATOR && $user->client_id != $clientGateway->client_id)
             throw new Exception("You can't delete the gateway from another client", 1);
 
         $clientGateway->delete();

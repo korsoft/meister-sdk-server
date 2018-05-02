@@ -14,7 +14,7 @@ class ClientController extends Controller
     {
         $this->middleware('checkClientAdmin');
 
-        $this->middleware('checkSystemAdmin', ['only' => ['index', 'store','destroy']]);
+        $this->middleware('checkSystemIntegrator', ['only' => ['index', 'store','destroy']]);
 
     }
 

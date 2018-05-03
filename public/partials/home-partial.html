@@ -3,7 +3,7 @@
 <main-menu></main-menu>
 <main-toolbar></main-toolbar>
 
-    <md-content ng-init="init()" >
+    <md-content ng-init="init()" id="content" >
     <div flex-xs flex-gt-xs="100" layout="column">
 
     <md-card md-theme-watch>
@@ -35,7 +35,7 @@
 
     </div>
 
- </md-content>
+ 
 
  <md-content layout-xs="column" layout="row" ng-if="gatewaySelected!=null">
  <div flex-xs flex-gt-xs="50" layout="column">
@@ -228,18 +228,6 @@
         </md-card-content>
       </md-card>
 </md-content>
+</md-content>
 </div>
-
-<style type="text/css">
-  .title-log-result {
-    color: red;
-    font-size: 10px;
-    font-weight: bold;
-  }
-  .content-log-result {
-    color: gray;
-    font-size: 10px;
-    font-weight: bold;
-    padding-left: 10px;
-  }
-</style>
+<main-footer></main-footer>

@@ -10,6 +10,7 @@ class Role extends Model
 {
 
     const TYPE_SYSTEM_ADMIN = 99;
+    const TYPE_SYSTEM_INTEGRATOR = 89;
     const TYPE_CLIENT_ADMIN = 49;
     const TYPE_CLIENT_USER = 29;
 

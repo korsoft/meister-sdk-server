@@ -31,8 +31,33 @@ class User extends Authenticatable
         'client_id' => 'integer'
     ];
 
-    public function client(){
-        return $this->belongsTo('App\Client', 'client_id');
+    
+    public function getTypeAttribute($value){
+        if($value == User::TYPE_SYSTEM_ADMIN )
+           return $value;
+        else{
+            $val=$this->client();
+            if($val)
+            {
+                return $val->role->value;
+            }
+            else{
+                return $value;
+            }
+        }
+    }
+
+    public function getClientAttribute($value){
+        return $this->client();
+    }
+
+    private function client(){
+        return $this->clients()->where('default',true)->first();
+    }
+
+    public function clients()
+    {
+        return $this->hasMany('App\ClientUserRole','user_id');
     }
 
     /**

@@ -10,7 +10,11 @@ class ClientUserRole extends Model
     protected $table = 'client_user_role';
 
     protected $fillable = [
-        'user_id','client_id','role_id'
+        'user_id','client_id','role_id','default'
+    ];
+
+    protected $dates = [
+        'created_at','updated_at'
     ];
 
     public function client()

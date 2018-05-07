@@ -13,6 +13,13 @@ class ClientUserRole extends Model
         'user_id','client_id','role_id','default'
     ];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'client_id' => 'integer',
+        'role_id' => 'integer',
+        'default' => 'integer'
+    ];
+
     protected $dates = [
         'created_at','updated_at'
     ];

@@ -15,10 +15,7 @@ class ClientUserRoleController extends Controller
 
     public function __construct()
     {
-        // $this->middleware('checkClientAdmin');
-
-        // $this->middleware('checkSystemIntegrator', ['only' => ['index', 'store','destroy']]);
-
+         $this->middleware('checkSystemIntegrator');
     }
 
     /**
@@ -28,7 +25,7 @@ class ClientUserRoleController extends Controller
      */
     public function index()
     {
-        return "ss";
+        return ClientUserRole::get();
     }
 
     /**
@@ -328,7 +325,7 @@ class ClientUserRoleController extends Controller
             return response(json_encode(array("user"=>"The user_id doesn't exist")),422);
         }
 
-          //**************Check if user has enough privileges ********/
+        //**************Check if user has enough privileges ********/
         $session_user_level = $request->user()->type;
         //return error if user is TYPE_CLIENT_USER
         if($session_user_level==Role::TYPE_CLIENT_USER) 
@@ -411,6 +408,22 @@ class ClientUserRoleController extends Controller
             return response(json_encode(array("clientuserrol"=>"The model does not exist")),422);;
         }
 
+         //**************Check if user has enough privileges ********/
+        $session_user_level = $request->user()->type;
+        //return error if user is TYPE_CLIENT_USER
+        if($session_user_level==Role::TYPE_CLIENT_USER) 
+        {
+            return response(json_encode(array("user"=>"The user doesn't have enough privileges")),422);
+        }else{
+            //return error if user is TYPE_SYSTEM_INTEGRATOR or TYPE_CLIENT_ADMIN
+            if($session_user_level==Role::TYPE_SYSTEM_INTEGRATOR || $session_user_level==Role::TYPE_CLIENT_ADMIN){
+               $clientsForSessionUser = ClientUserRole::where('user_id',$request->user()->id)->where('client_id',$clientuserrole->client_id)->first(); 
+               if(!$clientsForSessionUser){
+                   return response(json_encode(array("user"=>"The user doesn't have enough privileges")),422);
+               }
+            }
+        }
+
         if($clientuserrole->default)
         {
             $clientuserroletemp = ClientUserRole::where('user_id',$clientuserrole->user_id)->get();
@@ -451,6 +464,23 @@ class ClientUserRoleController extends Controller
         if(!$clientuserrole)
         {
             return response(json_encode(array("clientuserrol"=>"The model does not exist")),422);;
+        }
+
+
+        //**************Check if user has enough privileges ********/
+        $session_user_level = $request->user()->type;
+        //return error if user is TYPE_CLIENT_USER
+        if($session_user_level==Role::TYPE_CLIENT_USER) 
+        {
+            return response(json_encode(array("user"=>"The user doesn't have enough privileges")),422);
+        }else{
+            //return error if user is TYPE_SYSTEM_INTEGRATOR or TYPE_CLIENT_ADMIN
+            if($session_user_level==Role::TYPE_SYSTEM_INTEGRATOR || $session_user_level==Role::TYPE_CLIENT_ADMIN){
+               $clientsForSessionUser = ClientUserRole::where('user_id',$request->user()->id)->where('client_id',$client_id)->first(); 
+               if(!$clientsForSessionUser){
+                   return response(json_encode(array("user"=>"The user doesn't have enough privileges")),422);
+               }
+            }
         }
 
         if($clientuserrole->default)

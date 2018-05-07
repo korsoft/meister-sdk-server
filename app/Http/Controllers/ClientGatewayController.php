@@ -464,6 +464,9 @@ class ClientGatewayController extends Controller
                 "\$format" => "json"
             ];
         } else if($endpoint != null && $json != null){
+            if($compression=="I"){
+                $json= self::compress($json);
+            }
             if($style != null){
                 $query = [
                     "Endpoint" => "'" . $endpoint . "'",
@@ -484,7 +487,7 @@ class ClientGatewayController extends Controller
         return $query;
     }
 
-    public function compress($string){
+    public static function compress($string){
         $stringCompress = gzencode($string);
         $stringhex="";
         for ($i=0; $i<strlen($stringCompress); $i++){

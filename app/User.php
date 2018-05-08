@@ -60,6 +60,19 @@ class User extends Authenticatable
         return $this->hasMany('App\ClientUserRole','user_id');
     }
 
+    public function clientRole($client_id){
+        if($this->type==User::TYPE_SYSTEM_ADMIN)
+        {
+            return Role::where("value",User::TYPE_SYSTEM_ADMIN)->first();;
+        }
+        $role = $this->clients()->where('client_id',$client_id)->first();
+        if($role){
+            return $role->role;
+        }
+            
+        return null;
+    }
+
     /**
      * The attributes that should be hidden for arrays.
      *

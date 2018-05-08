@@ -17,7 +17,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('checkClientAdmin', ['only' => ['index', 'types','store','destroy','update']]);
+        //$this->middleware('checkClientAdmin', ['only' => ['index', 'types','store','destroy','update']]);
 
     }
 
@@ -34,9 +34,9 @@ class UserController extends Controller
         Log::info("User in session",["array"=>$user]);
 
         if($user->type == User::TYPE_SYSTEM_ADMIN){
-            return User::with('clients')->with("clients.role")->get();
+            return User::with('clients')->get();
         } else if($user->type == User::TYPE_CLIENT_ADMIN || User::TYPE_SYSTEM_INTEGRATOR){
-            return User::where('client_id',$user->client_id)->with('clients')->with("clients.role")->get();
+            return User::where('client_id',$user->client_id)->with('client')->get();
         } 
         return [];
     }
@@ -129,16 +129,6 @@ class UserController extends Controller
 
         if($request->input('type')==User::TYPE_SYSTEM_ADMIN && $userInSession->type != User::TYPE_SYSTEM_ADMIN)
             throw new Exception("You can't create an user type system admin", 1);
-
-        if($request->input('type')>=User::TYPE_SYSTEM_INTEGRATOR && $userInSession->type < User::TYPE_SYSTEM_INTEGRATOR)
-            throw new Exception("You can't create an user type system integrator", 1);
-
-        if($request->input('type')>=User::TYPE_CLIENT_ADMIN && $userInSession->type < User::TYPE_CLIENT_ADMIN)
-            throw new Exception("You can't create an user type client admin", 1);
-
-        if( $userInSession->type < User::TYPE_CLIENT_USER)
-            throw new Exception("You can't create an user", 1);
-
         
         $user = new User;
         $user->name = $request->input('email');
@@ -147,21 +137,32 @@ class UserController extends Controller
         $user->last_name = $request->input('last_name');
         $user->password = bcrypt(User::DEFAULT_PASSWORD);
 
+      
+
+        if($request->input('type')!= User::TYPE_SYSTEM_ADMIN  && !$request->input('client_id')){
+            throw new Exception("Missing parameters", 1);
+        }
+
+
+        $client_role = $userInSession->clientRole($request->input('client_id'));
+
         if($request->input('type') == User::TYPE_SYSTEM_ADMIN)
         {
             $user->type = $request->input('type');
             $user->save();    
             return $user;
         }
-        else if($request->input('type') == User::TYPE_SYSTEM_INTEGRATOR  || $request->input('type') == User::TYPE_CLIENT_ADMIN){
+        else if( $client_role && $client_role->value >= $request->input('type') && $client_role->value> User::TYPE_CLIENT_USER ){
 
-            if($request->input('client_id')==null && $request->input('user_id')==null){
-                throw new Exception("Missing parameters", 1);
-            }
+            if( $userInSession->type != User::TYPE_SYSTEM_ADMIN ){
+                if( !$client_role || $client_role->type == User::TYPE_CLIENT_USER){
+                    throw new Exception("Can't create a users due to privileges", 1);
+                } 
 
-            if($userInSession->type < User::TYPE_SYSTEM_ADMIN && !ClientUserRole::where('user_id',$userInSession->id)->first())
-            {
-                throw new Exception("Can't create a user for this client", 1);
+                // if(!ClientUserRole::where('user_id',$userInSession->id)->first())
+                // {
+                //     throw new Exception("Can't create a user for this client", 1);
+                // }
             }
 
              DB::beginTransaction();
@@ -197,10 +198,14 @@ class UserController extends Controller
                   DB::rollBack();
                  throw new Exception("Can't save the relation in database", 1);
              }
+        }else if($client_role && $client_role->value<= User::TYPE_CLIENT_USER)
+        {
+             throw new Exception("The client user can't create another user", 1);
+        }else if (!$client_role){
+             throw new Exception("Can't create user for this client", 1);
         }
 
-
-        return $user;
+        return null;
     }
 
     /**
@@ -346,7 +351,7 @@ class UserController extends Controller
             'type' => 'required'
         ]);
 
-       if($request->input('type')==User::TYPE_SYSTEM_ADMIN && $userInSession->type != User::TYPE_SYSTEM_ADMIN)
+        if($request->input('type')==User::TYPE_SYSTEM_ADMIN && $userInSession->type != User::TYPE_SYSTEM_ADMIN)
             throw new Exception("You can't edit an user type system admin", 1);
 
         if($request->input('type')>=User::TYPE_SYSTEM_INTEGRATOR && $userInSession->type < User::TYPE_SYSTEM_INTEGRATOR)
@@ -391,20 +396,62 @@ class UserController extends Controller
         $userToDestroy = User::find($id);
 
         $user = $request->user();
-
-        if($user->type == User::TYPE_CLIENT_USER)
-            throw new Exception("You can't delete this user", 1);
         
-        if($user->type == User::TYPE_CLIENT_ADMIN && $user->client_id != $userToDestroy->client_id)
-            throw new Exception("You can't delete the user from another user", 1);
+        if($user->type!=User::TYPE_SYSTEM_ADMIN)
+        {
+            $band= false;
 
-        if($user->type < $userToDestroy->type)
-            throw new Exception("You can't delete this user", 1);
+            $userPermission = ClientUserRole::with('role')->where("user_id",$user->id)->get();
 
-        $user->delete();
+            foreach($userPermission  as $up)
+            {
+                $userToDestroyClient = ClientUserRole::with('role')->where("user_id",$userToDestroy->id)->get();
+                foreach($userToDestroyClient  as $utd){
+                    if($utd->client_id==$up->client_id)
+                    {
+                        if($utd->role->value<=$up->role->value && $up->role->value>=User::TYPE_CLIENT_ADMIN){
+                            $band=true;
+                            break;
+                        }else{
+                            throw new Exception("Can't delete relation with this user due to permission", 1);    
+                        }
+                    }
+                }
+
+                if($band)
+                {
+                    break;
+                }
+            }
+
+            
+            if($band){
+                DB::beginTransaction();
+                foreach($userToDestroyClient  as $utd){
+                    if(!$utd->delete())
+                    {
+                        DB::rollBack();
+                        throw new Exception("Can't delete relation with this user", 1);
+                    }
+                }
+                $user->delete();
+                DB::commit();
+            }
+        }else{
+            $userToDestroyClient = ClientUserRole::where("user_id",$userToDestroy->id)->get();
+            DB::beginTransaction();
+            foreach($userToDestroyClient  as $utd){
+                if(!$utd->delete())
+                {
+                    DB::rollBack();
+                    throw new Exception("Can't delete relation with this user", 1);
+                }
+            }
+            $user->delete();
+            DB::commit();
+        }
 
         return $user;
-            
             
     }
 }

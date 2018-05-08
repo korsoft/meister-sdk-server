@@ -26,7 +26,7 @@ class ClientUserRole extends Model
 
     public function client()
     {
-        return $this->hasOne('App\Client');
+        return $this->belongsTo('App\Client');
     }
 
     public function role()
@@ -36,7 +36,7 @@ class ClientUserRole extends Model
 
     public function user()
     {
-        return $this->hasOne('App\User');
+        return $this->belongsTo('App\User');
     }
 
 }

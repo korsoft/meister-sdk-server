@@ -372,7 +372,7 @@ class UserController extends Controller
                         throw new Exception("Can't delete relation with this user", 1);
                     }
                 }
-                $user->delete();
+                $userToDestroy->delete();
                 DB::commit();
             }
         }else{
@@ -385,7 +385,7 @@ class UserController extends Controller
                     throw new Exception("Can't delete relation with this user", 1);
                 }
             }
-            $user->delete();
+            $userToDestroy->delete();
             DB::commit();
         }
 

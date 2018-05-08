@@ -45,7 +45,7 @@ class ApiLoginController extends ATC
 
             //get user
             //change to 'email' if you want
-            $user = User::where('email', '=', $username)->first();
+            $user = User::where('email', '=', $username)->with("clients")->first();
 
             //generate token
             $tokenResponse = parent::issueToken($request);
@@ -62,6 +62,8 @@ class ApiLoginController extends ATC
             $data["user_id"] = $user->id;
             $data["user_type"] = $user->type;
             $data["user_email"] = $user->email;
+            $data["user_clients"]=$user->clients;
+            $data["user_default_client"]=$user->client;
 
             return Response::json($data);
         }

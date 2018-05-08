@@ -65,7 +65,7 @@ class ClientUserRoleController extends Controller
 
         if(!$client)
         {
-            return response(json_encode(array("client"=>"The client_id doesn't exists")),422);
+            return response(json_encode(array("message"=>"The client_id doesn't exists")),422);
         }
 
     
@@ -73,7 +73,7 @@ class ClientUserRoleController extends Controller
 
         if(!$user)
         {
-            return response(json_encode(array("user"=>"The user_id doesn't exist")),422);
+            return response(json_encode(array("message"=>"The user_id doesn't exist")),422);
         }
 
         //**************Check if user has enough privileges ********/
@@ -81,13 +81,13 @@ class ClientUserRoleController extends Controller
         //return error if user is TYPE_CLIENT_USER
         if($session_user_level==Role::TYPE_CLIENT_USER) 
         {
-            return response(json_encode(array("user"=>"The user doesn't have enough privileges")),422);
+            return response(json_encode(array("message"=>"The user doesn't have enough privileges")),422);
         }else{
             //return error if user is TYPE_SYSTEM_INTEGRATOR or TYPE_CLIENT_ADMIN
             if($session_user_level==Role::TYPE_SYSTEM_INTEGRATOR || $session_user_level==Role::TYPE_CLIENT_ADMIN){
                $clientsForSessionUser = ClientUserRole::where('user_id',$request->user()->id)->where('client_id',$client_id)->first(); 
                if(!$clientsForSessionUser){
-                   return response(json_encode(array("user"=>"The user doesn't have enough privileges")),422);
+                   return response(json_encode(array("message"=>"The user doesn't have enough privileges")),422);
                }
             }
         }
@@ -95,11 +95,11 @@ class ClientUserRoleController extends Controller
         //The user SYSTEM_ADMIN is allowed to change everithing by default
         //*****************************************************/
 
-        $role = Role::find($role_id);
+        $role = Role::where("value",$role_id)->first();
 
         if(!$role)
         {
-            return response(json_encode(array("role"=>"The role_id doesn't exist")),422);
+            return response(json_encode(array("message"=>"The role_id doesn't exist")),422);
         }
         //*****************************************************/
 
@@ -107,7 +107,7 @@ class ClientUserRoleController extends Controller
 
         $clientUserRole=ClientUserRole::where("client_id",$client_id)->where("user_id",$user_id)->first();
         if($clientUserRole){
-            return response(json_encode(array("clientuser"=>"The relation with client and user already exists")),422);
+            return response(json_encode(array("message"=>"The relation with client and user already exists")),422);
         }
 
         //******************************************************/
@@ -117,7 +117,7 @@ class ClientUserRoleController extends Controller
         $clienUserRole = new ClientUserRole();
         $clienUserRole->client_id=$request->input('client_id');
         $clienUserRole->user_id=$request->input('user_id');
-        $clienUserRole->role_id=$request->input('role_id');
+        $clienUserRole->role_id=$role->id;
         $clienUserRole->default=$request->input('default');
 
        
@@ -129,13 +129,13 @@ class ClientUserRoleController extends Controller
             if($default){
                 $clientUserRoleTemp=ClientUserRole::where("user_id",$user_id)->where("default",true)->first();
                 if(!$clientUserRoleTemp){
-                    return response(json_encode(array("clientuser"=>"The old default model can't be retrieved")),422);
+                    return response(json_encode(array("message"=>"The old default model can't be retrieved")),422);
                 }
 
                 $clientUserRoleTemp->default=0;
 
                 if(!$clientUserRoleTemp->save()){
-                    return response(json_encode(array("clientuser"=>"The old default model can't be saved")),422);
+                    return response(json_encode(array("message"=>"The old default model can't be saved")),422);
                 }
             }else{
                 $clienUserRole->default=0;
@@ -151,7 +151,7 @@ class ClientUserRoleController extends Controller
             return $clienUserRole;
         }
 
-        return response(json_encode(array("clientuserrol"=>"The model can't be saved")),422);
+        return response(json_encode(array("message"=>"The model can't be saved")),422);
 
     }
 
@@ -174,7 +174,7 @@ class ClientUserRoleController extends Controller
      */
     public function getByUserId($user_id)
     {
-        return ClientUserRole::where('user_id',$user_id)->get();
+        return ClientUserRole::with("client")->with("role")->where('user_id',$user_id)->get();
     }
 
 
@@ -228,13 +228,13 @@ class ClientUserRoleController extends Controller
         //return error if user is TYPE_CLIENT_USER
         if($session_user_level==Role::TYPE_CLIENT_USER) 
         {
-            return response(json_encode(array("user"=>"The user doesn't have enough privileges")),422);
+            return response(json_encode(array("message"=>"The user doesn't have enough privileges")),422);
         }else{
             //return error if user is TYPE_SYSTEM_INTEGRATOR or TYPE_CLIENT_ADMIN
             if($session_user_level==Role::TYPE_SYSTEM_INTEGRATOR || $session_user_level==Role::TYPE_CLIENT_ADMIN){
                $clientsForSessionUser = ClientUserRole::where('user_id',$request->user()->id)->where('client_id',$client_id)->first(); 
                if(!$clientsForSessionUser){
-                   return response(json_encode(array("user"=>"The user doesn't have enough privileges")),422);
+                   return response(json_encode(array("message"=>"The user doesn't have enough privileges")),422);
                }
             }
         }
@@ -242,11 +242,11 @@ class ClientUserRoleController extends Controller
         //*****************************************************/
 
          //**************Check is role id's is in the database ********/
-        $role = Role::find($role_id);
+        $role = Role::where("value",$role_id)->first();
 
         if(!$role)
         {
-            return response(json_encode(array("role"=>"The role_id doesn't exist")),422);
+            return response(json_encode(array("message"=>"The role_id doesn't exist")),422);
         }
         //*****************************************************/
 
@@ -254,12 +254,12 @@ class ClientUserRoleController extends Controller
 
         $clientUserRole=ClientUserRole::where("id",$id)->first();
         if(!$clientUserRole){
-            return response(json_encode(array("clientuser"=>"The model doesn't exists")),422);
+            return response(json_encode(array("message"=>"The model doesn't exists")),422);
         }
 
         //******************************************************/
 
-        $clientUserRole->role_id=$role_id ;
+        $clientUserRole->role_id=$role->id ;
 
 
         //Check if the new value is true, then  find the other default record
@@ -269,14 +269,14 @@ class ClientUserRoleController extends Controller
             if($clientUserRoleTemp){
                 $clientUserRoleTemp->default=0;
                 if(!$clientUserRoleTemp->save()){
-                    return response(json_encode(array("clientuser"=>"The old default model can't be saved")),422);
+                    return response(json_encode(array("message"=>"The old default model can't be saved")),422);
                 }
             }
         }else{
             //Check if the new value is false but is actually the default value, then  
             //throw error.
             if($clientUserRole->default){
-                return response(json_encode(array("clientuser"=>"The default value can't be false for all clients")),422);
+                return response(json_encode(array("message"=>"The default value can't be false for all clients")),422);
             }
         }       
         
@@ -287,7 +287,7 @@ class ClientUserRoleController extends Controller
             return $clientUserRole;
         }
 
-        return response(json_encode(array("clientuserrol"=>"The model can't be saved")),422);
+        return response(json_encode(array("message"=>"The model can't be saved")),422);
     }
 
     /**
@@ -399,13 +399,13 @@ class ClientUserRoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request,$id)
     {
         $clientuserrole = ClientUserRole::find($id);
 
         if(!$clientuserrole)
         {
-            return response(json_encode(array("clientuserrol"=>"The model does not exist")),422);;
+            return response(json_encode(array("message"=>"The model does not exist")),422);;
         }
 
          //**************Check if user has enough privileges ********/
@@ -413,13 +413,13 @@ class ClientUserRoleController extends Controller
         //return error if user is TYPE_CLIENT_USER
         if($session_user_level==Role::TYPE_CLIENT_USER) 
         {
-            return response(json_encode(array("user"=>"The user doesn't have enough privileges")),422);
+            return response(json_encode(array("message"=>"The user doesn't have enough privileges")),422);
         }else{
             //return error if user is TYPE_SYSTEM_INTEGRATOR or TYPE_CLIENT_ADMIN
             if($session_user_level==Role::TYPE_SYSTEM_INTEGRATOR || $session_user_level==Role::TYPE_CLIENT_ADMIN){
                $clientsForSessionUser = ClientUserRole::where('user_id',$request->user()->id)->where('client_id',$clientuserrole->client_id)->first(); 
                if(!$clientsForSessionUser){
-                   return response(json_encode(array("user"=>"The user doesn't have enough privileges")),422);
+                   return response(json_encode(array("message"=>"The user doesn't have enough privileges")),422);
                }
             }
         }
@@ -435,7 +435,7 @@ class ClientUserRoleController extends Controller
                         $crrt->default=true;
                         if(!$crrt->save())
                         {
-                            return response(json_encode(array("clientuserrol"=>"The model's default propert can't be updated")),422);;
+                            return response(json_encode(array("message"=>"The model's default propert can't be updated")),422);;
                         }
 
                         break;
@@ -457,7 +457,7 @@ class ClientUserRoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroyByClientUserId($client_id,$user_id)
+    public function destroyByClientUserId(Request $request,$client_id,$user_id)
     {
         $clientuserrole = ClientUserRole::where("client_id",$client_id)->where("user_id",$user_id)->first();
 

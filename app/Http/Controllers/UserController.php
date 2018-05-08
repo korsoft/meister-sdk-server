@@ -34,9 +34,9 @@ class UserController extends Controller
         Log::info("User in session",["array"=>$user]);
 
         if($user->type == User::TYPE_SYSTEM_ADMIN){
-            return User::with('clients')->get();
+            return User::with('clients')->with("clients.role")->get();
         } else if($user->type == User::TYPE_CLIENT_ADMIN || User::TYPE_SYSTEM_INTEGRATOR){
-            return User::where('client_id',$user->client_id)->with('client')->get();
+            return User::where('client_id',$user->client_id)->with('clients')->with("clients.role")->get();
         } 
         return [];
     }

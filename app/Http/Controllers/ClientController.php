@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Client;
+use App\User;
 use Exception;
+use Log;
+use App\ClientUserRole;
 
 class ClientController extends Controller
 {
@@ -23,9 +26,27 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Client::get();
+        
+
+        $user = $request->user();
+
+        Log::info("User in session",["array"=>$user]);
+
+        if($user->type == User::TYPE_SYSTEM_ADMIN){
+            return Client::get();
+        } else if($user->type == User::TYPE_CLIENT_ADMIN || User::TYPE_SYSTEM_INTEGRATOR){
+            $users = ClientUserRole::where("user_id",$user->id)->get(); 
+            $userstoreturn = array();
+            foreach($users as $uc){
+                $userstoreturn[] = Client::where("id",$uc->client_id)->first();
+            }
+
+            return $userstoreturn;
+        }
+
+        return [];
     }
 
     /**

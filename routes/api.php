@@ -58,6 +58,22 @@ Route::group(['middleware' => ['auth:api']], function () {
         ]
     );
 
+    Route::apiResource('clientuserrole', 'ClientUserRoleController',
+        [
+            'except' => 
+                [
+                    'index','create','edit'
+                ]
+        ]
+    );
+
+    Route::get('/clientuserrole/byuserid/{id}','ClientUserRoleController@getByUserId');
+    Route::get('/clientuserrole/byclientanduserid/{client_id}/{user_id}','ClientUserRoleController@getByClientAndUserId');
+    Route::delete('/clientuserrole/{client_id}/{user_id}','ClientUserRoleController@destroyByClientUserId');
+    Route::put('/clientuserrole/{client_id}/{user_id}','ClientUserRoleController@updateByClientAndUserId');
+    Route::post('/users/changedefault/{client_id}','UserController@changeDef');
+
+
 });
 
 

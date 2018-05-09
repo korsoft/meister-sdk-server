@@ -65,21 +65,30 @@ class ApiLoginController extends ATC
 
             $clients = $user->clients;
 
-            $d = array();
-            foreach ($clients as $c) {
-                $cc = $c;
-                $cc->role=$c->role;
-                $cc->client=$c->client;
-                $d[]=$cc;
+            if(count($clients)>0){
+
+                $d = array();
+                foreach ($clients as $c) {
+                    $cc = $c;
+                    $cc->role=$c->role;
+                    $cc->client=$c->client;
+                    $d[]=$cc;
+                }
+                $data["user_clients"]=$d;
+            }else
+            {
+                $data["user_clients"]=null;
             }
-            $data["user_clients"]=$d;
 
-            
 
-            $cc = $user->client;
-            $cc->client = $c->client;
-            $cc->role = $c->role;
-            $data["user_default_client"]=$cc;
+            $c = $user->client;
+            if($c){
+                $cc->client = $c->client;
+                $cc->role = $c->role;
+                $data["user_default_client"]=$cc;
+            }else{
+                $data["user_default_client"]=null;
+            }
 
             return Response::json($data);
         }

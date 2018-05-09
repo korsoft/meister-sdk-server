@@ -92,7 +92,7 @@ class ClientGatewayController extends Controller
         if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $clientGateway->client_id = $request->input('client_id');
         else 
-            $clientGateway->client_id = $userInSession->client_id;
+            $clientGateway->client_id = $userInSession->client->client_id;
 
         $clientGateway->save();
 
@@ -112,7 +112,7 @@ class ClientGatewayController extends Controller
         if($request->user()->type == User::TYPE_SYSTEM_ADMIN)
             return $clientGateway;
         else if($request->user()->type != User::TYPE_SYSTEM_ADMIN && 
-                $clientGateway->client_id == $request->user()->client_id)
+                $clientGateway->client_id == $request->user()->client->client_id)
             return $clientGateway;
 
         return null;

@@ -82,7 +82,9 @@ class ApiLoginController extends ATC
 
 
             $c = $user->client;
+
             if($c){
+                $cc=$c;
                 $cc->client = $c->client;
                 $cc->role = $c->role;
                 $data["user_default_client"]=$cc;

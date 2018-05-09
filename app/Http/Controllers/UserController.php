@@ -17,7 +17,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        //$this->middleware('checkClientAdmin', ['only' => ['index', 'types','store','destroy','update']]);
+        $this->middleware('checkClientAdmin', ['only' => ['index', 'types','store','destroy','update']]);
 
     }
 
@@ -292,7 +292,7 @@ class UserController extends Controller
                     
                 foreach($uclients as $uc){
                     if($c->client_id == $uc->client_id){
-                        if($c->role->value>=$uc->role->value){
+                        if($c->role->value>=$uc->role->value && $c->role->value> User::TYPE_CLIENT_USER){
                             $band=true;
                             break;
                         }
@@ -391,5 +391,58 @@ class UserController extends Controller
 
         return $user;
             
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function changeDef(Request $request, $client_id){
+
+        $userInSession = $request->user();
+
+        if($userInSession->type == User::TYPE_SYSTEM_ADMIN){
+            return $userInSession;
+        }
+
+        $oldDef = ClientUserRole::where("user_id",$userInSession->id)->where("default",true)->first();
+
+        if(!$oldDef)
+        {
+              throw new Exception("Can't find the default client for this user", 1);
+        }
+
+        $oldDef->default=false;;
+
+        $newDef = ClientUserRole::where("user_id",$userInSession->id)->where("client_id",$client_id)->first();
+
+        if(!$newDef )
+        {
+            throw new Exception("Can't find the client for this user", 1);
+        }
+
+        if($newDef->id == $oldDef->id)
+        {
+            $userInSession->clients=$userInSession->clients;
+            $userInSession->client=$userInSession->client;
+            return  $userInSession;
+        }
+
+        $newDef->default = true;
+
+        DB::beginTransaction();
+        if( !$oldDef->save() || !$newDef->save())
+        {
+            DB::rollBack();
+            throw new Exception("Can't save in the database", 1);
+        }
+
+        DB::commit();
+        $userInSession->clients=$userInSession->clients;
+        $userInSession->client=$userInSession->client;
+        return  $userInSession;
+        
     }
 }

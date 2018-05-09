@@ -36,7 +36,25 @@ class UserController extends Controller
         if($user->type == User::TYPE_SYSTEM_ADMIN){
             return User::with('clients')->with("clients.role")->get();
         } else if($user->type == User::TYPE_CLIENT_ADMIN || User::TYPE_SYSTEM_INTEGRATOR){
-            return User::where('client_id',$user->client_id)->with('clients')->with("clients.role")->get();
+            $users = ClientUserRole::where("user_id",$user->id)->get(); 
+            $userstoreturn = array();
+            foreach ($users as $u) {
+                $usersc = ClientUserRole::where("client_id",$u->client_id)->get(); 
+                foreach($usersc as $uc){
+                    $find = array_filter($userstoreturn,function ($k) use($uc){
+                        if($k->id==$uc->user_id)
+                        {
+                            return true;
+                        }
+                        return false;
+                    });
+                    if(count($find)==0){
+                        $userstoreturn[] = User::where("id",$uc->user_id)->with('clients')->with("clients.role")->first();
+                    }
+                }
+            }
+
+            return $userstoreturn;
         } 
         return [];
     }

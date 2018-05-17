@@ -321,10 +321,19 @@ class ClientGatewayController extends Controller
                         ]; 
                     }
                     if(isset($report["Json"])){
-                        return [
-                            "url" => $response["url"],
-                            "data" => json_decode($report["Json"], true)
-                        ]; 
+                        Log::info("Report json",["result"=>$report["Json"]]);
+                        if(self::isJson($report["Json"])){
+                            return [
+                                "url" => $response["url"],
+                                "data" => json_decode($report["Json"], true)
+                            ]; 
+                        } else {
+                            return response()->json(array(
+                                'code'      =>  404,
+                                'message'   =>  "Invalid JSON Response"
+                            ), 404);
+                        }
+                        
                     }
                 }
             }
@@ -343,6 +352,14 @@ class ClientGatewayController extends Controller
         }
 
     }
+
+
+
+    protected static function isJson($string) {
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
+    }
+
 
     protected static function StringToByteArray($st){
         $h = str_replace(array("\\", "\\r","\\n"), '', $st);

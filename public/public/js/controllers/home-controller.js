@@ -20,6 +20,11 @@
 	      e.preventDefault();
 	    };
 
+	    const DEFAULT_DELETED_STATE_PROJECT = false;
+	    const DEFAULT_DELETED_STATE_MODULE = false;
+	    const DEFAULT_DELETED_STATE_ENDPOINT= false;
+	    const DEFAULT_DELETED_STATE_STYLE = false;
+
 		// angular.element($window).on('contextmenu',stopMenu );
 	 	// $scope.$on('$destroy', function() {
 		//     angular.element($window).off('contextmenu', stopMenu);
@@ -44,7 +49,14 @@
 		$scope.init = function(){
 
 			console.log("home controller init...");
-			
+
+			$scope.clients = $rootScope.clients();
+			$scope.default_client =  $rootScope.user_client();
+			$scope.showMenu = ($rootScope.user_type() !=$rootScope.SYSTEM_ADMIN);
+			console.log("clients",$scope.clients);
+			console.log("default_client",$scope.default_client);
+			console.log("show menu",$scope.showMenu);
+
 			$scope.promise = GatewayService.index();
 
 			$scope.promise.then(
@@ -60,6 +72,7 @@
 		};
 		$rootScope.$on("default_client_change",function(){
           $scope.init();
+          $scope.basicTree = [];
         });
 
 		$scope.isArray = function(what) {
@@ -88,6 +101,7 @@
 					 var nodeItem = {
 						name:node.PROJECT,
 						source:node,
+						is_deleted:  DEFAULT_DELETED_STATE_PROJECT,
 						children: []
 					};
 					rootNode.children.push(nodeItem);
@@ -95,6 +109,7 @@
 						var moduleItem = {
 							name: module.NAME,
 							source:module,
+							is_deleted:  DEFAULT_DELETED_STATE_MODULE,
 							children: []
 						};
 						nodeItem.children.push(moduleItem);
@@ -103,6 +118,7 @@
 								name: endpoint.NAMESPACE,
 								source: endpoint,
 								expanded: false,
+								is_deleted:  DEFAULT_DELETED_STATE_ENDPOINT,
 								children: []
 							};
 							moduleItem.children.push(endpointItem);
@@ -111,6 +127,7 @@
 									name: style.NAME,
 									source: style,
 									expanded: false,
+									is_deleted: DEFAULT_DELETED_STATE_STYLE,
 									children: []
 								};
 								endpointItem.children.push(styleItem);
@@ -204,6 +221,87 @@
 	        	$scope.execute(obj.sourceEvent,obj.node);
 	        else if(obj.actionName == "execute_by_style")
 	        	$scope.execute_by_style(obj.sourceEvent,obj.node);
+    	});
+
+	    $scope.$on('undelete-node-style-selected', function (e, obj) {
+	        console.log("undelete-node-selected",obj);
+	        obj.node.is_deleted=false;
+    	});
+
+    	$scope.$on('delete-node-style-selected', function (e, obj) {
+	        console.log("delete-node-selected",obj);
+	        obj.node.is_deleted=true;
+    	});
+
+    	$scope.$on('undelete-module-selected', function (e, obj) {
+	        console.log("undelete-module-selected",obj);
+	        obj.node.is_deleted=false;
+	        $scope.$emit('refresh-project', obj.node.parentId);
+    	});
+
+
+    	$scope.$on('check-if-undelete-module-selected', function (e, obj) {
+	        console.log("undelete-module-selected",obj);
+	        obj.node.is_deleted=false;
+    	});
+
+    	$scope.$on('delete-module-selected', function (e, obj) {
+	        console.log("delete-module-selected",obj);
+	        obj.node.is_deleted=true;
+    	});
+
+
+		$scope.$on('undelete-project-selected', function (e, obj) {
+	        console.log("undelete-project-selected",obj);
+	        obj.node.is_deleted=false;
+    	});
+
+    	$scope.$on('delete-project-selected', function (e, obj) {
+	        console.log("delete-project-selected",obj);
+	        obj.node.is_deleted=true;
+    	});
+
+    	$scope.$on('undelete-endpoint-deleted', function (e, obj) {
+	        console.log("undelete-endpoint-deleted",obj);
+	        _.forEach(obj.node.children,function(itm){
+	        	itm.is_deleted=false;
+	        }); 
+	        obj.node.is_deleted=false;
+	        $scope.$emit('refresh-module', obj.node.parentId);
+    	});
+
+    	$scope.$on('delete-endpoint-deleted', function (e, obj) {
+	        console.log("delete-endpoint-deleted",obj);
+	        _.forEach(obj.node.children,function(itm){
+	        	itm.is_deleted=true;
+	        }); 
+	        obj.node.is_deleted=true;
+    	});
+
+    	$scope.$on('refresh-module', function (e, obj) {
+	        console.log("refresh-module",obj);
+	        var projects = $scope.basicTree[0].children;
+
+	        _.forEach(projects, function(projectsItm){
+	        	var modules = projectsItm.children;
+	        	_.forEach(modules, function(modulesItm){
+	        		if(modulesItm.nodeId===obj){
+	        			modulesItm.is_deleted=false;
+	        		}
+	        	});
+	        });
+    	});
+
+    	$scope.$on('refresh-project', function (e, obj) {
+	        console.log("refresh-project",obj);
+	        console.log("basicTree",$scope.basicTree[0].children);
+	        var projects = $scope.basicTree[0].children;
+
+	        _.forEach(projects, function(projectsItm){
+        		if(projectsItm.nodeId===obj){
+        			projectsItm.is_deleted=false;
+        		}
+	        });
     	});
 
 	     $scope.$on('selection-changed', function (e, node) {

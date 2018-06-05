@@ -6,7 +6,7 @@
         $scope.endpoint = {};
         $scope.parentNode = {};
         $scope.page=1;
-        $scope.valid = true;
+        $scope.valid = false;
 
         $scope.promise = null;
          $scope.cancel = function() {
@@ -21,14 +21,20 @@
               try
               {
                 jj = JSON.parse($scope.endpoint.STYLES[i].JSON);
-                $scope.valid=true;
+                if(Object.keys(jj).length>0)
+                {
+                  $scope.valid=true;
+                }else{
+                  $scope.valid=false;
+                }
+                
               }catch(ee)
               {
                 $scope.valid=false;
                 break;
               }
             }else{
-              $scope.valid=true;
+              $scope.valid=false;
             }
           }
 

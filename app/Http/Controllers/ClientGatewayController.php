@@ -235,8 +235,29 @@ class ClientGatewayController extends Controller
 
             $body = (string) $response["response"]->getBody();
 
-            return json_decode($body, true);
+            $result = json_decode($body, true);
 
+            Log::info("Result",["response" => $result]);
+
+            if(is_array($result) && count($result)>0){
+                if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
+                    $report = $result["d"]["results"][0];
+                    if(isset($report["Json"])){
+                        Log::info("Report json",["result"=>$report["Json"]]);
+                        if(self::isJson($report["Json"])){
+                            return json_decode($report["Json"], true);
+                        } else {
+                            return response()->json(array(
+                                'code'      =>  404,
+                                'message'   =>  "Invalid JSON Response"
+                            ), 404);
+                        }
+                        
+                    }
+                }
+            }
+
+            
         } catch(\GuzzleHttp\Exception\ClientException $e){
             Log::info("ClientException",["result" => $e]);
             throw new Exception("Connection failure", 1);

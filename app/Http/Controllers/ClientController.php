@@ -69,10 +69,12 @@ class ClientController extends Controller
     {
          $request->validate([
             'name' => 'required|max:200',
+            'sap_number' => 'required|max:3'
         ]);
 
         $client = new Client;
         $client->name = $request->input('name');
+        $client->sap_number = $request->input('sap_number');
         $client->save();
         return $client;
     }
@@ -111,6 +113,7 @@ class ClientController extends Controller
     {
          $request->validate([
             'name' => 'required|max:200',
+            'sap_number' => 'required|max:3'
         ]);
 
         $client = Client::find($id);
@@ -119,6 +122,7 @@ class ClientController extends Controller
             throw new Exception("Client doesn't exist", 1);
             
         $client->name = $request->input('name');
+        $client->sap_number = $request->input('sap_number');
         $client->save();
 
         return $client;

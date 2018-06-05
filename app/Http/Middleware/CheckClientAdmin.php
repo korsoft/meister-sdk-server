@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 
 use App\User;
+use Exception;
 
 class CheckClientAdmin
 {

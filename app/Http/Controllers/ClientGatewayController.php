@@ -230,7 +230,7 @@ class ClientGatewayController extends Controller
 
             $result = json_decode($body, true);
 
-            Log::info("Result",["response" => $result]);
+            //Log::info("Result",["response" => $result]);
 
             if(is_array($result) && count($result)>0){
                 if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
@@ -512,8 +512,11 @@ class ClientGatewayController extends Controller
                     "Json" => "'".$json."'",
                     "\$format" => "json"
                 ];
-            }
-            
+            } 
+        }
+        $client = $clientGateway->client()->first();
+        if($client->sap_number!=null && $client->sap_number){
+            $query["sap_client"] = $client->sap_number;
         }
         return $query;
     }

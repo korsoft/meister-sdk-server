@@ -24,7 +24,7 @@ class Client extends Model
      */
     protected $dates = ['deleted_at'];
 
-    protected $fillable = array('name', 'created_at','updated_at');
+    protected $fillable = array('name', 'sap_number', 'created_at','updated_at');
 
 
     public function users(){

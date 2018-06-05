@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 
+use Exception;
 use App\User;
 
 class CheckSystemAdmin

@@ -4,10 +4,13 @@ namespace Laravie\Parser\Xml;
 
 use SimpleXMLElement;
 use Illuminate\Support\Arr;
+use function Laravie\Parser\get_alias;
 use Laravie\Parser\Document as BaseDocument;
 
 class Document extends BaseDocument
 {
+    use Concerns\SupportMultiLevel;
+
     /**
      * Available namespaces.
      *
@@ -163,7 +166,8 @@ class Document extends BaseDocument
         $collection = data_get($content, $parent);
         $namespaces = $this->getAvailableNamespaces();
 
-        $uses = explode(',', $matches[2]);
+        $uses = $this->parseBasicUses($matches[2]);
+
         $values = [];
 
         if (! $collection instanceof SimpleXMLElement) {
@@ -196,32 +200,36 @@ class Document extends BaseDocument
     protected function parseValueCollection(SimpleXMLElement $content, array $uses)
     {
         $value = [];
+        $result = [];
 
         foreach ($uses as $use) {
-            list($name, $as) = strpos($use, '>') !== false ? explode('>', $use, 2) : [$use, $use];
+            $primary = $this->resolveUses($use);
 
-            if (preg_match('/^([A-Za-z0-9_\-\.]+)\((.*)\=(.*)\)$/', $name, $matches)) {
-                if ($name == $as) {
-                    $as = null;
-                }
-
-                $item = $this->getSelfMatchingValue($content, $matches, $as);
-
-                if (is_null($as)) {
-                    $value = array_merge($value, $item);
-                } else {
-                    Arr::set($value, $as, $item);
-                }
+            if ($primary instanceof Definitions\MultiLevel) {
+                $result[$primary->getKey()] = $this->parseMultiLevelsValueCollection($content, $primary);
             } else {
-                if ($name == '@') {
-                    $name = null;
-                }
+                list($name, $as) = strpos($use, '>') !== false ? explode('>', $use, 2) : [$use, $use];
 
-                Arr::set($value, $as, $this->getValue($content, $name));
+                if (preg_match('/^([A-Za-z0-9_\-\.]+)\((.*)\=(.*)\)$/', $name, $matches)) {
+                    $as = get_alias($as, $name);
+
+                    $item = $this->getSelfMatchingValue($content, $matches, $as);
+
+                    if (is_null($as)) {
+                        $value = array_merge($value, $item);
+                    } else {
+                        Arr::set($value, $as, $item);
+                    }
+                } else {
+                    $name = get_alias($name, '@');
+
+                    Arr::set($value, $as, $this->getValue($content, $name));
+                }
+                $result = $value;
             }
         }
 
-        return $value;
+        return $result;
     }
 
     /**

@@ -21,6 +21,10 @@ class ClientGateway extends Model
      */
     protected $table = 'client_gateway';
 
+    const URL_GENERIC_PATH = '/sap/opu/odata/MEISTER/ENGINE/Execute';
+    const ENDPOINT_LOOKUP = 'Meister.SDK.Lookup';
+    const ENDPOINT_MANAGER = 'Meister.Endpoint.Manager';
+
   
     use SoftDeletes;
 
@@ -36,7 +40,7 @@ class ClientGateway extends Model
         'client_id' => 'integer'
     ];
 
-    protected $fillable = array('name','url','username','password','auth_type', 'client_id','digest', 'consumer_key', 'consumer_secret','token','token_secret','client_id_for_oauth2','client_secret_for_oauth2', 'auth_url_for_oauth2','endpoint_master','endpoint_lookup','created_at','updated_at');
+    protected $fillable = array('name','url','username','password','auth_type', 'client_id','digest', 'consumer_key', 'consumer_secret','token','token_secret','client_id_for_oauth2','client_secret_for_oauth2', 'auth_url_for_oauth2','created_at','updated_at');
 
 
     public function client(){

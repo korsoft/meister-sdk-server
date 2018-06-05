@@ -11,6 +11,7 @@ use Exception;
 
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
+
 use kamermans\OAuth2\GrantType\PasswordCredentials;
 use kamermans\OAuth2\OAuth2Middleware;
 
@@ -67,8 +68,6 @@ class ClientGatewayController extends Controller
         $request->validate([
             'name' => 'required|max:120',
             'url' => 'required',
-            'endpoint_master' => 'required',
-            'endpoint_lookup' => 'required',
             'auth_type' => 'required'
         ]);
 
@@ -86,8 +85,6 @@ class ClientGatewayController extends Controller
         $clientGateway->client_id_for_oauth2 = $request->input('client_id_for_oauth2');
         $clientGateway->client_secret_for_oauth2 = $request->input('client_secret_for_oauth2');
         $clientGateway->auth_url_for_oauth2 = $request->input('auth_url_for_oauth2');
-        $clientGateway->endpoint_master = $request->input('endpoint_master');
-        $clientGateway->endpoint_lookup = $request->input('endpoint_lookup');
 
         if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $clientGateway->client_id = $request->input('client_id');
@@ -143,8 +140,6 @@ class ClientGatewayController extends Controller
         $request->validate([
             'name' => 'required|max:120',
             'url' => 'required',
-            'endpoint_master' => 'required',
-            'endpoint_lookup' => 'required',
             'auth_type' => 'required'
         ]);
 
@@ -162,8 +157,6 @@ class ClientGatewayController extends Controller
         $clientGateway->client_id_for_oauth2 = $request->input('client_id_for_oauth2');
         $clientGateway->client_secret_for_oauth2 = $request->input('client_secret_for_oauth2');
         $clientGateway->auth_url_for_oauth2 = $request->input('auth_url_for_oauth2');
-        $clientGateway->endpoint_master = $request->input('endpoint_master');
-        $clientGateway->endpoint_lookup = $request->input('endpoint_lookup');
 
         if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
             $clientGateway->client_id = $request->input('client_id');
@@ -456,9 +449,9 @@ class ClientGatewayController extends Controller
 
         Log::info("Auth",$auth);
         
-        $c =  $clientGuzz->request('GET',$clientGateway->url,$auth);
+        $c =  $clientGuzz->request('GET',$clientGateway->url . ClientGateway::URL_GENERIC_PATH,$auth);
 
-        $url = $clientGateway->url . "?" . self::build_http_query($auth["query"]);
+        $url = $clientGateway->url . ClientGateway::URL_GENERIC_PATH . "?" . self::build_http_query($auth["query"]);
 
         Log::info("url: " . $url);
 
@@ -482,14 +475,14 @@ class ClientGatewayController extends Controller
     protected static function  getQueryParamsForGateway($clientGateway, $endpoint = null, $json = null, $style = null, $compression = null){
         if($json == null && $endpoint == null){
             $query = [
-                "Endpoint" => "'" . $clientGateway->endpoint_lookup . "'",
+                "Endpoint" => "'" . ClientGateway::ENDPOINT_LOOKUP . "'",
                 "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"Default\"}]'",
                 "Json" => "'{\"TYPE\":\"C\"}'",
                 "\$format" => "json"
             ];
         } else if($json != null && $endpoint == null){
             $query = [
-                "Endpoint" => "'" . $clientGateway->endpoint_master . "'",
+                "Endpoint" => "'" . ClientGateway::ENDPOINT_MANAGER . "'",
                 "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"Default\"}]'",
                 "Json" => "'".$json."'",
                 "\$format" => "json"

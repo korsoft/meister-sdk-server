@@ -62,7 +62,7 @@ Route::group(['middleware' => ['auth:api']], function () {
         [
             'except' => 
                 [
-                    'index','create','edit'
+                    'index','show','edit'
                 ]
         ]
     );
@@ -74,6 +74,17 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/users/changedefault/{client_id}','UserController@changeDef');
 
 
+    Route::apiResource('clientgatewayrelation', 'ClientGatewayRelationController',
+        [
+            'except' => 
+                [
+                    'index','create','edit'
+                ]
+        ]
+    );
+
+    Route::get('/clientgatewayrelation/getbyclientid/{id}','ClientGatewayRelationController@getByClientId');
+    Route::get('/clientgatewayrelation/getbygatewaytid/{id}','ClientGatewayRelationController@getByGatewayId');
 });
 
 

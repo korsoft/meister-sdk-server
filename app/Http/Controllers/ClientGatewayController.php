@@ -86,11 +86,6 @@ class ClientGatewayController extends Controller
         $clientGateway->client_secret_for_oauth2 = $request->input('client_secret_for_oauth2');
         $clientGateway->auth_url_for_oauth2 = $request->input('auth_url_for_oauth2');
 
-        if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
-            $clientGateway->client_id = $request->input('client_id');
-        else 
-            $clientGateway->client_id = $userInSession->client->client_id;
-
         $clientGateway->save();
 
         return $clientGateway;
@@ -157,10 +152,7 @@ class ClientGatewayController extends Controller
         $clientGateway->client_id_for_oauth2 = $request->input('client_id_for_oauth2');
         $clientGateway->client_secret_for_oauth2 = $request->input('client_secret_for_oauth2');
         $clientGateway->auth_url_for_oauth2 = $request->input('auth_url_for_oauth2');
-
-        if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
-            $clientGateway->client_id = $request->input('client_id');
-
+        
         $clientGateway->save();
 
         return $clientGateway;

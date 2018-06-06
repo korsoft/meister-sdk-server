@@ -109,15 +109,9 @@ class ClientGatewayRelationController extends Controller
             return ClientGatewayRelation::where("gateway_id",$gatewayId)->with("client")->with("gateway")->get();
         }
         else {
-            $clientsUsers = ClientUserRole::where("user_id", $userInSession->id)->get();
+            $clientsIds = ClientUserRole::where("user_id", $userInSession->id)->pluck("client_id")->toArray();
 
-            $keys=[];
-           
-            foreach ($clientsUsers as $cu) {
-                $keys[]=$cu->client_id;
-            }   
-
-            return  ClientGatewayRelation::whereIn("client_id", $keys)->where("gateway_id",$gatewayId)
+            return  ClientGatewayRelation::whereIn("client_id", $clientsIds)->where("gateway_id",$gatewayId)
                 ->with("client")->with("gateway")->get();;
 
         }

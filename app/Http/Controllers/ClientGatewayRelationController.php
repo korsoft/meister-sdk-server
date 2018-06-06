@@ -8,6 +8,8 @@ use App\ClientGateway;
 use App\ClientGatewayRelation;
 use App\User;
 use App\Client;
+use App\ClientUserRole;
+use Illuminate\Support\Collection;
 
 use Exception;
 use Log;
@@ -72,31 +74,53 @@ class ClientGatewayRelationController extends Controller
 
     }
 
-    public function getByClientId(Request $request,$clientId){
+    // public function getByClientId(Request $request,$clientId){
 
-        $userInSession = $request->user();
+    //     $userInSession = $request->user();
 
-        if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
-            return ClientGatewayRelation::where("client_id",$clientId)->with("client")->with("gateway")->get();
-        else 
-            if($userInSession->client->id==$clientId)
-                return ClientGatewayRelation::where("client_id",$clientId)->with("client")->with("gateway")->get();
-            else
-                return Response(json_encode(array("error"=>"not enougth priveleges")),402);
+    //     if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
+    //         return ClientGatewayRelation::where("client_id",$clientId)->with("client")->with("gateway")->get();
+    //     else 
+    //         if($userInSession->client->id==$clientId)
+    //             return ClientGatewayRelation::where("client_id",$clientId)->with("client")->with("gateway")->get();
+    //         else
+    //             return Response(json_encode(array("error"=>"not enougth priveleges")),402);
 
         
-    }
+    // }
 
-    public function getByGatewayId(Request $request,$gatewayId){
+    // public function getByGatewayId(Request $request,$gatewayId){
+    //     $userInSession = $request->user();
+
+    //     if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
+    //         return ClientGatewayRelation::where("gateway_id",$gatewayId)->with("client")->with("gateway")->get();
+    //     else 
+    //         if($userInSession->client->id==$clientId)
+    //             return ClientGatewayRelation::where("client_id",$userInSession->client->id)->where("gateway_id",$gatewayId)->with("client")->with("gateway")->get();
+    //         else
+    //             return Response(json_encode(array("error"=>"not enougth priveleges")),402);
+        
+    // }
+
+    public function getByGatewayIdAndCurrentUser(Request $request,$gatewayId){
         $userInSession = $request->user();
 
-        if($userInSession->type == User::TYPE_SYSTEM_ADMIN)
+        if($userInSession->type == User::TYPE_SYSTEM_ADMIN){
             return ClientGatewayRelation::where("gateway_id",$gatewayId)->with("client")->with("gateway")->get();
-        else 
-            if($userInSession->client->id==$clientId)
-                return ClientGatewayRelation::where("client_id",$userInSession->client->id)->where("gateway_id",$gatewayId)->with("client")->with("gateway")->get();
-            else
-                return Response(json_encode(array("error"=>"not enougth priveleges")),402);
+        }
+        else {
+            $clientsUsers = ClientUserRole::where("user_id", $userInSession->id)->get();
+
+            $keys=[];
+           
+            foreach ($clientsUsers as $cu) {
+                $keys[]=$cu->client_id;
+            }   
+
+            return  ClientGatewayRelation::whereIn("client_id", $keys)->where("gateway_id",$gatewayId)
+                ->with("client")->with("gateway")->get();;
+
+        }
         
     }
 

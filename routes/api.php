@@ -83,8 +83,10 @@ Route::group(['middleware' => ['auth:api']], function () {
         ]
     );
 
-    Route::get('/clientgatewayrelation/getbyclientid/{id}','ClientGatewayRelationController@getByClientId');
-    Route::get('/clientgatewayrelation/getbygatewaytid/{id}','ClientGatewayRelationController@getByGatewayId');
+    // Route::get('/clientgatewayrelation/getbyclientid/{id}','ClientGatewayRelationController@getByClientId');
+    // Route::get('/clientgatewayrelation/getbygatewaytid/{id}','ClientGatewayRelationController@getByGatewayId');
+
+    Route::get('/clientgatewayrelation/getbygatewaytidandcurrentuser/{gatewayId}','ClientGatewayRelationController@getByGatewayIdAndCurrentUser');
 });
 
 

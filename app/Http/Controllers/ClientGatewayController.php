@@ -520,10 +520,10 @@ class ClientGatewayController extends Controller
                 ];
             } 
         }
-        $client = $clientGateway->client()->first();
+        /*$client = $clientGateway->client()->first();
         if($client->sap_number!=null && $client->sap_number){
             $query["sap_client"] = $client->sap_number;
-        }
+        }*/
         return $query;
     }
 

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\ClientGateway;
 use App\User;
+use App\ClientGatewayRelation;
 
 use Exception;
 
@@ -38,10 +39,14 @@ class ClientGatewayController extends Controller
         Log::info("User in session",["array"=>$user]);
 
         if($user->type == User::TYPE_SYSTEM_ADMIN){
-            return ClientGateway::with('client')->get();
+            return ClientGateway::get();
         } else {
-            return ClientGateway::where('client_id',$user->client->client_id)->with('client')->get();
-        } 
+            $clientsIds= $user->clients()->pluck('id')->toArray();  
+            $cgrs = ClientGateway::whereHas('clientGatewayRelations', function ($query) {
+                $query->whereIn('client_id', $clientsIds);
+            })->get(); 
+            return $cgrs;
+        }     
         return [];
     }
 
@@ -88,6 +93,12 @@ class ClientGatewayController extends Controller
 
         $clientGateway->save();
 
+        if($userInSession->type != User::TYPE_SYSTEM_ADMIN){
+            $cgr = new ClientGatewayRelation;
+            $cgr->client_gateway_id = $clientGateway->id;
+            $cgr->client_id = $userInSession->client()->first()->id;
+            $cgr->save();
+        } 
         return $clientGateway;
     }
 

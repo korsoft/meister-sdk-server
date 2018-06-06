@@ -50,13 +50,6 @@
 
 			console.log("home controller init...");
 
-			$scope.clients = $rootScope.clients();
-			$scope.default_client =  $rootScope.user_client();
-			$scope.showMenu = ($rootScope.user_type() !=$rootScope.SYSTEM_ADMIN);
-			console.log("clients",$scope.clients);
-			console.log("default_client",$scope.default_client);
-			console.log("show menu",$scope.showMenu);
-
 			$scope.promise = GatewayService.index();
 
 			$scope.promise.then(
@@ -73,6 +66,7 @@
 		$rootScope.$on("default_client_change",function(){
           $scope.init();
           $scope.basicTree = [];
+          $scope.gatewaySelected = {};
         });
 
 		$scope.isArray = function(what) {
@@ -101,6 +95,7 @@
 					 var nodeItem = {
 						name:node.PROJECT,
 						source:node,
+						parent: rootNode,
 						is_deleted:  DEFAULT_DELETED_STATE_PROJECT,
 						children: []
 					};
@@ -109,6 +104,7 @@
 						var moduleItem = {
 							name: module.NAME,
 							source:module,
+							parent:nodeItem,
 							is_deleted:  DEFAULT_DELETED_STATE_MODULE,
 							children: []
 						};
@@ -118,6 +114,7 @@
 								name: endpoint.NAMESPACE,
 								source: endpoint,
 								expanded: false,
+								parent:moduleItem,
 								is_deleted:  DEFAULT_DELETED_STATE_ENDPOINT,
 								children: []
 							};
@@ -126,6 +123,7 @@
 								var styleItem = {
 									name: style.NAME,
 									source: style,
+									parent:endpointItem,
 									expanded: false,
 									is_deleted: DEFAULT_DELETED_STATE_STYLE,
 									children: []
@@ -140,35 +138,40 @@
 			}
 		};
 
-		$scope.changeGateway = function(id){
+		$scope.executeGateway = function(){
 			$scope.loading_tree = true;
-			$scope.gatewaySelectedId = id;
 			$scope.nodeSelected = null;
 			$scope.nodeExpanded = null;
 			$scope.show_select_gateway = false;
 			$scope.mode_run = false;
 			$scope.url_details = "";
 			$scope.styleSelected = null;
-			
+			if($scope.gatewaySelected.id){
+				$scope.promise = GatewayService.execute($scope.gatewaySelected.id);
+				$scope.promise.then(
+					function(result){
+						$scope.loading_tree = false;
+						console.log("result",result);
+	                     gatewayResponse = result.data;
+	                      MessageUtil.showInfo("Gateway data loaded");
+	                     $scope.build_tree();
+					},
+					function(error){
+						$scope.loading_tree = false;
+						console.log('failure', error);
+	                     MessageUtil.showError(error.data.message);
+					}
+				);
+			}
+		};
+
+		$scope.changeGateway = function(id){
+			$scope.gatewaySelectedId = id;
 			console.log("Gateway selected", $scope.gatewaySelectedId);
 			$scope.gatewaySelected = _.find($scope.gateways,function(g){
 				return id == g.id;
 			});
-			$scope.promise = GatewayService.execute(id);
-			$scope.promise.then(
-				function(result){
-					$scope.loading_tree = false;
-					console.log("result",result);
-                     gatewayResponse = result.data;
-                      MessageUtil.showInfo("Gateway data loaded");
-                     $scope.build_tree();
-				},
-				function(error){
-					$scope.loading_tree = false;
-					console.log('failure', error);
-                     MessageUtil.showError(error.data.message);
-				}
-			);
+			
 		};
 
 		$rootScope.openActionsInNode = function($mdOpenMenu, $event){
@@ -416,7 +419,12 @@
 	     $scope.execute = function(event, node){
 			console.log("Execute event for endpoint",node);
 			var params = {"endpoint":node.name};
+			console.log("Style selected",$scope.styleSelected);
 			$scope.mode_run = true;
+			if($scope.styleSelected){
+				params.style = $scope.styleSelected.name
+			}
+			$scope.styleSelected = null;
 			$scope.promise = GatewayService.execute_endpoint($scope.gatewaySelected.id,params);
 			$scope.promise.then(
 				function(result){

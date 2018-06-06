@@ -27,11 +27,11 @@ class ClientGatewayRelation extends Model
     protected $dates = ['deleted_at'];
 
      protected $casts = [
-        'client_gateway_id' => 'integer',
+        'gateway_id' => 'integer',
         'client_id' => 'integer'
     ];
 
-    protected $fillable = array('client_id','client_gateway_id');
+    protected $fillable = array('client_id','gateway_id');
 
     public function client(){
         return $this->belongsTo('App\Client', 'client_id');

@@ -41,8 +41,8 @@ class ClientGateway extends Model
 
     protected $fillable = array('name','url','username','password','auth_type','digest', 'consumer_key', 'consumer_secret','token','token_secret','client_id_for_oauth2','client_secret_for_oauth2', 'auth_url_for_oauth2','created_at','updated_at');
     
-     public function clientGatewayRelations()
+     public function clients()
     {
-        return $this->hasMany('App\ClientGatewayRelation','client_gateway_id');
+        return $this->hasMany('App\ClientGatewayRelation','gateway_id');
     }
 }

@@ -41,8 +41,9 @@ class ClientGatewayController extends Controller
         if($user->type == User::TYPE_SYSTEM_ADMIN){
             return ClientGateway::get();
         } else {
-            $clientsIds= $user->clients()->pluck('id')->toArray();  
-            $cgrs = ClientGateway::whereHas('clientGatewayRelations', function ($query) {
+            $clientsIds= $user->clients()->pluck('client_id')->toArray();  
+            Log::info("ClientsIds",$clientsIds);
+            $cgrs = ClientGateway::whereHas('clients', function ($query)  use ($clientsIds){
                 $query->whereIn('client_id', $clientsIds);
             })->get(); 
             return $cgrs;

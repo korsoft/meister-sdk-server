@@ -201,7 +201,7 @@ class ClientGatewayController extends Controller
 
         try {
             
-            $response = self::response_connection($clientGateway);
+            $response = self::response_connection($clientGateway, $request);
 
            if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
@@ -225,7 +225,7 @@ class ClientGatewayController extends Controller
 
         try {
             
-            $response = self::response_connection($clientGateway);
+            $response = self::response_connection($clientGateway, $request);
 
            if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
@@ -281,7 +281,7 @@ class ClientGatewayController extends Controller
 
         try {
             
-            $response = self::response_connection($clientGateway, null, $json);
+            $response = self::response_connection($clientGateway, $request);
 
            if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
@@ -317,7 +317,7 @@ class ClientGatewayController extends Controller
             
             $compression = $request->input('compression');
 
-            $response = self::response_connection($clientGateway, $endpoint, $request->input('json'), $request->input('style'), $compression);
+            $response = self::response_connection($clientGateway, $request);
 
            if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
@@ -341,7 +341,7 @@ class ClientGatewayController extends Controller
                     if(isset($report["Json"])){
                         $json = str_replace("\\n", '', $report["Json"]);
                         //$json =  stripslashes($json);
-                        Log::info("Result in execute_endpoint (json): " .$json);
+                        //Log::info("Result in execute_endpoint (json): " .$json);
                         if(self::isJson($json)){
                             return [
                                 "url" => $response["url"],
@@ -395,7 +395,7 @@ class ClientGatewayController extends Controller
         return $bytes;   
     }
 
-    protected static function response_connection($clientGateway, $endpoint = null, $json = null, $style = null, $compression = null){
+    protected static function response_connection($clientGateway, $request){
 
         $clientGuzz = new \GuzzleHttp\Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false), )); 
 
@@ -451,7 +451,7 @@ class ClientGatewayController extends Controller
 
         }
 
-        $auth["query"] = self::getQueryParamsForGateway($clientGateway, $endpoint, $json, $style, $compression);
+        $auth["query"] = self::getQueryParamsForGateway($clientGateway, $request);
 
         Log::info("Auth",$auth);
         
@@ -478,7 +478,13 @@ class ClientGatewayController extends Controller
 
 
 
-    protected static function  getQueryParamsForGateway($clientGateway, $endpoint = null, $json = null, $style = null, $compression = null){
+    protected static function  getQueryParamsForGateway($clientGateway, $request){
+        
+        $endpoint = $request->input("endpoint");
+        $json = $request->input("json");
+        $style = $request->input("style");
+        $compression = $request->input("compression");
+
         if($json == null && $endpoint == null){
             $query = [
                 "Endpoint" => "'" . ClientGateway::ENDPOINT_LOOKUP . "'",
@@ -520,10 +526,10 @@ class ClientGatewayController extends Controller
                 ];
             } 
         }
-        /*$client = $clientGateway->client()->first();
-        if($client->sap_number!=null && $client->sap_number){
-            $query["sap_client"] = $client->sap_number;
-        }*/
+        $client_number = $request->input("client_number");
+        if($client_number!=null){
+            $query["sap_client"] = $client_number;
+        }
         return $query;
     }
 

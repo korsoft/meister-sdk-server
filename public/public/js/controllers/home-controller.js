@@ -7,7 +7,7 @@
 		$scope.gateways = [];
 		$scope.gatewaySelectedId = null;
 		$scope.gatewaySelected = null;
-		$scope.treeOptions = {showIcon:false,expandOnClick:false};
+		$scope.treeOptions = {showIcon:true,expandOnClick:false};
 		$scope.nodeSelected = null;
 		$scope.nodeExpanded = null;
 		var gatewayResponse = null;
@@ -15,6 +15,11 @@
 		$scope.show_select_gateway = true;
 		$scope.loading_tree = false;
 		$scope.wrap={compression : "N"};
+		$scope.jsonReq={};
+		$scope.jsonResp={}
+		$scope.opt={selectedIndex:0, show:false}
+
+
 		$scope.client = {};
 		var endpoints_names=[];
 		var endpoints_main=[];
@@ -85,6 +90,7 @@
 			$scope.basicTree = [];
 			var rootNode = {
 				name: $scope.gatewaySelected.name,
+				image:'/public/images/root.png',
 				children: []
 			};
 			$scope.mode_run = false;
@@ -102,6 +108,7 @@
 					 var nodeItem = {
 						name:node.PROJECT,
 						source:node,
+						image: '/public/images/project.png',
 						parent: rootNode,
 						is_deleted:  DEFAULT_DELETED_STATE_PROJECT,
 						children: []
@@ -111,6 +118,7 @@
 						var moduleItem = {
 							name: module.NAME,
 							source:module,
+							image: '/public/images/module.png',
 							parent:nodeItem,
 							is_deleted:  DEFAULT_DELETED_STATE_MODULE,
 							children: []
@@ -122,6 +130,7 @@
 							var endpointItem = {
 								name: endpoint.NAMESPACE,
 								source: endpoint,
+								image: '/public/images/endpoint.png',
 								expanded: false,
 								parent:moduleItem,
 								is_deleted:  DEFAULT_DELETED_STATE_ENDPOINT,
@@ -132,6 +141,7 @@
 								var styleItem = {
 									name: style.NAME,
 									source: style,
+									image: '/public/images/styles.png',
 									parent:endpointItem,
 									expanded: false,
 									is_deleted: DEFAULT_DELETED_STATE_STYLE,
@@ -189,6 +199,9 @@
 				$scope.client = {};
 				GatewayClientService.getbyGatewayId($scope.gatewaySelectedId).then(function(result){
                    $scope.clients = result.data;
+                   if($scope.clients.length){
+                   	 $scope.client=$scope.clients[0].client;
+                   }
 		        });
 			}
 		};
@@ -440,6 +453,7 @@
 	     $scope.execute = function(event, node){
 			console.log("Execute event for endpoint",node);
 			var params = {"endpoint":node.name};
+			var node={};
 			console.log("Style selected",$scope.styleSelected);
 			$scope.mode_run = true;
 			if($scope.styleSelected){
@@ -448,14 +462,32 @@
 			if($scope.client.id){
 				params.client_number = $scope.client.sap_number;
 			}
+
+			if($scope.styleSelected)
+				node = $scope.styleSelected.parent;
+			else
+				node = $scope.nodeSelected;
+
 			$scope.styleSelected = null;
 			$scope.promise = GatewayService.execute_endpoint($scope.gatewaySelected.id,params);
 			$scope.promise.then(
 				function(result){
 					console.log("result",result);
-					$scope.payload_json.json = result.data.data; //angular.fromJson(result.data.data.d.results[0].Json);
-					$scope.payload_json.json_string =JSON.stringify(result.data.data,null, '\t');
+					if(node.source.TYPE && node.source.TYPE=="L"){
+						$scope.opt.selectedIndex=0;
+						$scope.opt.show=true;
+						$scope.jsonReq=result.data.data.REQUEST;
+						$scope.jsonResp=result.data.data.RESPONSE;
+						$scope.payload_json.json = $scope.jsonReq; //angular.fromJson(result.data.data.d.results[0].Json);
+						$scope.payload_json.json_string =JSON.stringify($scope.jsonReq,null, '\t');            
+					}else{
+						$scope.opt.selectedIndex=0;
+						$scope.opt.show=false;
+						$scope.payload_json.json = result.data.data; //angular.fromJson(result.data.data.d.results[0].Json);
+						$scope.payload_json.json_string =JSON.stringify(result.data.data,null, '\t');
+					}
 					$scope.payload_json.json_test = true;
+					
 				},
 				function(error){
 					console.log('failure', error);
@@ -504,8 +536,10 @@
 					    var data  = pako.inflate(binData);
 
 					    // Convert gunzipped byteArray back to ascii string:
-					    json=(String.fromCharCode.apply(null, new Uint16Array(data)));
-					    json_text_content = $filter('json')(angular.fromJson(json));
+					    
+						json=(String.fromCharCode.apply(null, new Uint16Array(data)));
+						json_text_content = $filter('json')(angular.fromJson(json));
+					    
 					}
 					else{
 			   		   json_text_content = $filter('json')(result.data.data, 2);
@@ -574,6 +608,16 @@
         	$scope.styleSelected.parent = $scope.nodeSelected;
         	console.log("changeStyle",style);
         };
+
+        $scope.setRequest= function(){
+			$scope.payload_json.json = $scope.jsonReq;
+			$scope.payload_json.json_string =JSON.stringify($scope.jsonReq,null, '\t');
+        }
+
+        $scope.setResponse = function(){
+        	$scope.payload_json.json = $scope.jsonResp;
+			$scope.payload_json.json_string =JSON.stringify($scope.jsonResp,null, '\t');
+        }
 
 	}]);
 })(meister);

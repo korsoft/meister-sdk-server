@@ -48,12 +48,6 @@
         	if(e.target.getAttribute('class') !== "ace_text-input")
 	      		e.preventDefault();
 	    };
-
-	    const DEFAULT_DELETED_STATE_PROJECT = false;
-	    const DEFAULT_DELETED_STATE_MODULE = false;
-	    const DEFAULT_DELETED_STATE_ENDPOINT= false;
-	    const DEFAULT_DELETED_STATE_STYLE = false;
-
        
 		angular.element( $window).on('contextmenu',stopMenu );
 		$scope.$on('$destroy', function() {
@@ -106,6 +100,8 @@
 			$scope.payload_json = {json: null, options: {mode: 'tree'}};
 			$scope.url_details = "";
 			$scope.styleSelected = null;
+			
+			var style_counter = 1;
 
 			$scope.basicTree.push(rootNode);
 			console.log("Building tree",gatewayResponse);
@@ -118,9 +114,35 @@
 						source:node,
 						image: '/public/images/project.png',
 						parent: rootNode,
-						is_deleted:  DEFAULT_DELETED_STATE_PROJECT,
+						is_deleted:  node.LOGICAL_DELETE,
 						children: []
 					};
+					
+					 /************************
+					  * Data Style Simulator
+					  */
+					 var style_template= {
+							 name: "STYLE_LIB",
+					 		image: '/public/images/template.png',
+					 		type: "style_template",
+					 		children: []
+					 }
+					 
+					 _.forEach(node.STYLE_LIB, function(styleSrc){
+						 var style = {
+							name:styleSrc.PKY,
+							source:styleSrc,
+							type: "style_template",
+							image: '/public/images/style_template.png',
+							is_deleted:  styleSrc.LOGICAL_DELETE,
+							parent: style_template
+						 }
+						 style_template.children.push(style);
+					});
+					 
+					 
+					 nodeItem.children.push(style_template);
+					 
 					rootNode.children.push(nodeItem);
 					_.forEach(node.MODULES, function(module){
 						var moduleItem = {
@@ -128,20 +150,26 @@
 							source:module,
 							image: '/public/images/module.png',
 							parent:nodeItem,
-							is_deleted:  DEFAULT_DELETED_STATE_MODULE,
+							is_deleted:  module.LOGICAL_DELETE,
 							children: []
 						};
 						nodeItem.children.push(moduleItem);
 						_.forEach(module.ENDPOINTS, function(endpoint){
 							endpoints_names.push(endpoint.NAMESPACE);
 							endpoints_main.push(endpoint.ENDPOINT_MAIN);
+							var icon = "";
+							console.log("endpoint",endpoint);
+							if(endpoint.TYPE == "L")
+								icon = '/public/images/endpoint_l.png';
+							else
+								icon = '/public/images/endpoint.png';
 							var endpointItem = {
 								name: endpoint.NAMESPACE,
 								source: endpoint,
-								image: '/public/images/endpoint.png',
+								image: icon,
 								expanded: false,
 								parent:moduleItem,
-								is_deleted:  DEFAULT_DELETED_STATE_ENDPOINT,
+								is_deleted:  endpoint.LOGICAL_DELETE,
 								children: []
 							};
 							moduleItem.children.push(endpointItem);
@@ -152,7 +180,7 @@
 									image: '/public/images/styles.png',
 									parent:endpointItem,
 									expanded: false,
-									is_deleted: DEFAULT_DELETED_STATE_STYLE,
+									is_deleted: style.LOGICAL_DELETE,
 									children: []
 								};
 								endpointItem.children.push(styleItem);
@@ -274,6 +302,7 @@
     	$scope.$on('delete-node-style-selected', function (e, obj) {
 	        console.log("delete-node-selected",obj);
 	        obj.node.is_deleted=true;
+	        
     	});
 
     	$scope.$on('undelete-module-selected', function (e, obj) {
@@ -319,6 +348,30 @@
 	        	itm.is_deleted=true;
 	        }); 
 	        obj.node.is_deleted=true;
+
+	        var json_to_send =  GatewayService.buildJsonByNewEndpoint($scope.json, obj.node.parent.source, obj.node.source);
+          	json_to_send.MODULES[0].ENDPOINTS[0].STYLES = [];
+          	
+             console.log("json_to_send",json_to_send);
+	          var params = {
+	            json: angular.toJson(json_to_send),
+	            SDK_HINT:"SLD"
+	          };
+
+
+
+	            $scope.promise = GatewayService.execute_changes($scope.gatewaySelectedId, params);
+	            
+	            $scope.promise.then(
+	                function(result){
+	                  console.log("result",result);
+	                  },
+	                function(error){
+	                  console.log("error",error);
+	                  MessageUtil.showError(error.data.message);
+	                }
+	              );
+         
     	});
 
     	$scope.$on('refresh-module', function (e, obj) {

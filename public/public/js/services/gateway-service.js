@@ -59,13 +59,16 @@
                 console.log("project",project);
                 json_to_send.PKY = project.PKY;
                 json_to_send.PROJECT = project.PROJECT;
+                json_to_send.LOGICAL_DELETE = project.LOGICAL_DELETE;
+                json_to_send.MEISTER_OWN = project.MEISTER_OWN;
                 json_to_send.MODULES = [];
                  var moduleItem = {
                       PKY: module.PKY,
+                      FKY:project.PKY,
                       NAME: module.NAME,
                       DATE: moment(module.DATE).format('YYYYMMDD'),
                       ENDPOINTS: module.ENDPOINTS
-                };
+               };
                 json_to_send.MODULES.push(moduleItem);
             }
             return json_to_send;
@@ -89,10 +92,14 @@
                 if(module){
                     var moduleItem = {
                       PKY: module.PKY,
+                      FKY:project.PKY,
                       NAME: module.NAME,
                       DATE:module.DATE.split("-").join(""),
+                      MEISTER_OWN:  module.MEISTER_OWN,
+                      LOGICAL_DELETE:  module.LOGICAL_DELETE,
                       ENDPOINTS: []
                     };
+                    endpoint.FKY = module.PKY;
                     moduleItem.ENDPOINTS.push(endpoint);
                     json_to_send.MODULES.push(moduleItem);
                     return false;
@@ -125,6 +132,8 @@
                       PKY: module.PKY,
                       NAME: module.NAME,
                       DATE:module.DATE.split("-").join(""),
+                      MEISTER_OWN:  module.MEISTER_OWN,
+                      LOGICAL_DELETE:  module.LOGICAL_DELETE,
                       ENDPOINTS: []
                     };
                     var endpoint = _.find(module.ENDPOINTS, function(e){

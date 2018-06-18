@@ -484,25 +484,34 @@ class ClientGatewayController extends Controller
         $json = $request->input("json");
         $style = $request->input("style");
         $compression = $request->input("compression");
+        $SDK_HINT = "";
+        $params = "";
+
+        if($request->input("SDK_HINT")!=null){
+            $SDK_HINT = ",\"SDK_HINT\":\"".$request->input("SDK_HINT")."\"" ;
+        }
 
         if($json == null && $endpoint == null){
+            $params = "[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"Default\"".$SDK_HINT."}]";
             $query = [
                 "Endpoint" => "'" . ClientGateway::ENDPOINT_LOOKUP . "'",
-                "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"Default\"}]'",
+                "Parms" => "'".$params."'",
                 "Json" => "'{\"TYPE\":\"C\"}'",
                 "\$format" => "json"
             ];
         } else if($json != null && $endpoint == null){
+            $params = "[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"Default\"".$SDK_HINT."}]";
             $query = [
                 "Endpoint" => "'" . ClientGateway::ENDPOINT_MANAGER . "'",
-                "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\",\"STYLE\":\"Default\"}]'",
+                "Parms" => "'".$params."'",
                 "Json" => "'".$json."'",
                 "\$format" => "json"
             ];
         } else if($endpoint != null && $json == null){
+            $params = "[{\"METADATA\":\"X\"".$SDK_HINT."}]";
             $query = [
                 "Endpoint" => "'" . $endpoint . "'",
-                "Parms" => "'[{\"METADATA\":\"X\"}]'",
+                "Parms" => "'".$params."'",
                 "Json" => "''",
                 "\$format" => "json"
             ];
@@ -510,17 +519,20 @@ class ClientGatewayController extends Controller
             if($compression=="I"){
                 $json= self::compress($json);
             }
+
             if($style != null){
+                 $params = "[{\"COMPRESSION\":\"" . ($compression!=null ? $compression : "") . "\",\"TEST_RUN\":\"\",\"STYLE\":\"" . $style . "\"".$SDK_HINT."}]";
                 $query = [
                     "Endpoint" => "'" . $endpoint . "'",
-                    "Parms" => "'[{\"COMPRESSION\":\"" . ($compression!=null ? $compression : "") . "\",\"TEST_RUN\":\"\",\"STYLE\":\"" . $style . "\"}]'",
+                    "Parms" => "'".$params."'",
                     "Json" => "'".$json."'",
                     "\$format" => "json"
                 ];
             } else {
+                $params = "[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\"".$SDK_HINT."}]";
                 $query = [
                     "Endpoint" => "'" . $endpoint . "'",
-                    "Parms" => "'[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"\"}]'",
+                    "Parms" => "'".$params."'",
                     "Json" => "'".$json."'",
                     "\$format" => "json"
                 ];

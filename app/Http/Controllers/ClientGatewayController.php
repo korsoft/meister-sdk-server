@@ -240,7 +240,7 @@ class ClientGatewayController extends Controller
                 if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
                     $report = $result["d"]["results"][0];
                     if(isset($report["Json"])){
-                        Log::info("Report json",["result"=>$report["Json"]]);
+                        //Log::info("Report json",["result"=>$report["Json"]]);
                         if(self::isJson($report["Json"])){
                             return json_decode($report["Json"], true);
                         } else {
@@ -495,7 +495,7 @@ class ClientGatewayController extends Controller
         }
 
         if($json == null && $endpoint == null){
-            $params = "[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"".$TEST_RUN."\",\"STYLE\":\"Default\"".$SDK_HINT."}]";
+            $params = "[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"".$TEST_RUN."\"".$SDK_HINT."}]";
             $query = [
                 "Endpoint" => "'" . ClientGateway::ENDPOINT_LOOKUP . "'",
                 "Parms" => "'".$params."'",
@@ -503,7 +503,7 @@ class ClientGatewayController extends Controller
                 "\$format" => "json"
             ];
         } else if($json != null && $endpoint == null){
-            $params = "[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"".$TEST_RUN."\",\"STYLE\":\"Default\"".$SDK_HINT."}]";
+            $params = "[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"".$TEST_RUN."\"".$SDK_HINT."}]";
             $query = [
                 "Endpoint" => "'" . ClientGateway::ENDPOINT_MANAGER . "'",
                 "Parms" => "'".$params."'",

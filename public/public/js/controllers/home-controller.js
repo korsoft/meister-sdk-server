@@ -307,25 +307,60 @@
 
     	$scope.$on('undelete-module-selected', function (e, obj) {
 	        console.log("undelete-module-selected",obj);
-	        obj.node.is_deleted=false;
-	        $scope.$emit('refresh-project', obj.node.parentId);
+	        var json_to_send =  GatewayService.buildJsonByNewModule($scope.json, obj.node.parent.source, obj.node.source);
+          	console.log("json_to_send",json_to_send);
+	          var params = {
+	            json: angular.toJson(json_to_send),
+	            SDK_HINT:"RLD"
+	          };
+				$scope.promise = GatewayService.execute_changes($scope.gatewaySelectedId, params);
+	            
+	            $scope.promise.then(
+	                function(result){
+	                  console.log("result",result);
+	                  MessageUtil.showInfo("Module un-deleted");
+	                  $scope.executeGateway();
+	                  },
+	                function(error){
+	                  console.log("error",error);
+	                  MessageUtil.showError(error.data.message);
+	                }
+	              );
+         
     	});
 
 
     	$scope.$on('check-if-undelete-module-selected', function (e, obj) {
 	        console.log("undelete-module-selected",obj);
-	        obj.node.is_deleted=false;
+
     	});
 
     	$scope.$on('delete-module-selected', function (e, obj) {
 	        console.log("delete-module-selected",obj);
-	        obj.node.is_deleted=true;
+	        var json_to_send =  GatewayService.buildJsonByNewModule($scope.json, obj.node.parent.source, obj.node.source);
+          	console.log("json_to_send",json_to_send);
+	        var params = {
+	            json: angular.toJson(json_to_send),
+	            SDK_HINT:"SLD"
+	          };
+				$scope.promise = GatewayService.execute_changes($scope.gatewaySelectedId, params);
+	            
+	            $scope.promise.then(
+	                function(result){
+	                  console.log("result",result);
+	                  MessageUtil.showInfo("Module deleted");
+	                  $scope.executeGateway();
+	                  },
+	                function(error){
+	                  console.log("error",error);
+	                  MessageUtil.showError(error.data.message);
+	                }
+	              );
     	});
 
 
 		$scope.$on('undelete-project-selected', function (e, obj) {
 	        console.log("undelete-project-selected",obj);
-	        obj.node.is_deleted=false;
     	});
 
     	$scope.$on('delete-project-selected', function (e, obj) {
@@ -335,27 +370,64 @@
 
     	$scope.$on('undelete-endpoint-deleted', function (e, obj) {
 	        console.log("undelete-endpoint-deleted",obj);
-	        _.forEach(obj.node.children,function(itm){
-	        	itm.is_deleted=false;
-	        }); 
-	        obj.node.is_deleted=false;
-	        $scope.$emit('refresh-module', obj.node.parentId);
+	        var json_to_send =  GatewayService.buildJsonByNewEndpoint($scope.json, obj.node.parent.source, obj.node.source);
+          	console.log("json_to_send",json_to_send);
+	          var params = {
+	            json: angular.toJson(json_to_send),
+	            SDK_HINT:"RLD"
+	          };
+				$scope.promise = GatewayService.execute_changes($scope.gatewaySelectedId, params);
+	            
+	            $scope.promise.then(
+	                function(result){
+	                  console.log("result",result);
+	                  MessageUtil.showInfo("Endpoint un-deleted");
+	                  $scope.executeGateway();
+	                  },
+	                function(error){
+	                  console.log("error",error);
+	                  MessageUtil.showError(error.data.message);
+	                }
+	              );
+         
     	});
 
     	$scope.$on('delete-endpoint-deleted', function (e, obj) {
 	        console.log("delete-endpoint-deleted",obj);
-	        _.forEach(obj.node.children,function(itm){
-	        	itm.is_deleted=true;
-	        }); 
-	        obj.node.is_deleted=true;
-
 	        var json_to_send =  GatewayService.buildJsonByNewEndpoint($scope.json, obj.node.parent.source, obj.node.source);
-          	json_to_send.MODULES[0].ENDPOINTS[0].STYLES = [];
+          	//json_to_send.MODULES[0].ENDPOINTS[0].STYLES = [];
           	
              console.log("json_to_send",json_to_send);
 	          var params = {
 	            json: angular.toJson(json_to_send),
 	            SDK_HINT:"SLD"
+	          };
+				$scope.promise = GatewayService.execute_changes($scope.gatewaySelectedId, params);
+	            
+	            $scope.promise.then(
+	                function(result){
+	                  console.log("result",result);
+	                  MessageUtil.showInfo("Endpoint deleted");
+	                  $scope.executeGateway();
+	                  },
+	                function(error){
+	                  console.log("error",error);
+	                  MessageUtil.showError(error.data.message);
+	                }
+	              );
+         
+    	});
+
+    	$scope.$on('lock-endpoint', function (e, obj) {
+	        console.log("lock-endpoint",obj);
+	        
+	        var json_to_send =  GatewayService.buildJsonByNewEndpoint($scope.json, obj.node.parent.source, obj.node.source);
+          	//json_to_send.MODULES[0].ENDPOINTS[0].STYLES = [];
+          	
+             console.log("json_to_send",json_to_send);
+	          var params = {
+	            json: angular.toJson(json_to_send),
+	            SDK_HINT:"SLK"
 	          };
 
 
@@ -365,6 +437,40 @@
 	            $scope.promise.then(
 	                function(result){
 	                  console.log("result",result);
+	                  MessageUtil.showInfo("Endpoint locked");
+	                  $scope.executeGateway();
+	                  },
+	                function(error){
+	                  console.log("error",error);
+	                  MessageUtil.showError(error.data.message);
+	                }
+	              );
+         
+    	});
+
+    	$scope.$on('unlock-endpoint', function (e, obj) {
+	        console.log("unlock-endpoint",obj);
+	        
+	        obj.node.is_lock=false;
+
+	        var json_to_send =  GatewayService.buildJsonByNewEndpoint($scope.json, obj.node.parent.source, obj.node.source);
+          	json_to_send.MODULES[0].ENDPOINTS[0].STYLES = [];
+          	
+             console.log("json_to_send",json_to_send);
+	          var params = {
+	            json: angular.toJson(json_to_send),
+	            SDK_HINT:"RLK"
+	          };
+
+
+
+	            $scope.promise = GatewayService.execute_changes($scope.gatewaySelectedId, params);
+	            
+	            $scope.promise.then(
+	                function(result){
+	                  console.log("result",result);
+	                  MessageUtil.showInfo("Endpoint unlocked");
+	                  $scope.executeGateway();
 	                  },
 	                function(error){
 	                  console.log("error",error);
@@ -439,7 +545,7 @@
               })
               .then(function(result) {
                 MessageUtil.showInfo("Module was created");
-                $scope.changeGateway($scope.gatewaySelectedId);
+                $scope.executeGateway();
               }, function() {
                
               });
@@ -465,7 +571,7 @@
               })
               .then(function(result) {
                 MessageUtil.showInfo("Endpoint was created");
-                $scope.changeGateway($scope.gatewaySelectedId);
+                $scope.executeGateway();
               }, function() {
                
               });
@@ -489,7 +595,7 @@
               })
               .then(function(result) {
                 MessageUtil.showInfo("Style was created");
-                $scope.changeGateway($scope.gatewaySelectedId);
+                $scope.executeGateway();
               }, function() {
                
               });

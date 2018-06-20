@@ -485,17 +485,31 @@ class ClientGatewayController extends Controller
         $json = $request->input("json");
         $style = $request->input("style");
         $compression = $request->input("compression");
-        $SDK_HINT = "";
-        $TEST_RUN = env('SDK_TEST_RUN', '');
-
+        $ADDITIONAL_PARAMS = "";
+        
         $params = "";
 
         if($request->input("SDK_HINT")!=null){
-            $SDK_HINT = ",\"SDK_HINT\":\"".$request->input("SDK_HINT")."\"" ;
+            $ADDITIONAL_PARAMS .=",\"SDK_HINT\":\"".$request->input("SDK_HINT")."\"" ;
+        }
+        if($request->input("Asynch")!=null){
+            $ADDITIONAL_PARAMS .=",\"Asynch\":\"".$request->input("Asynch")."\"" ;
+        }
+        if($request->input("Queued")!=null){
+            $ADDITIONAL_PARAMS .=",\"Queued\":\"".$request->input("Queued")."\"" ;
+        }
+        if($request->input("BPM")!=null){
+            $ADDITIONAL_PARAMS .=",\"BPM\":\"".$request->input("BPM")."\"" ;
+        }
+        if($request->input("Callback")!=null){
+            $ADDITIONAL_PARAMS .=",\"Callback\":\"".$request->input("Callback")."\"" ;
+        }
+        if($request->input("Test_Run")!=null){
+            $ADDITIONAL_PARAMS .=",\"Test_Run\":\"".$request->input("Test_Run")."\"" ;
         }
 
         if($json == null && $endpoint == null){
-            $params = "[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"".$TEST_RUN."\"".$SDK_HINT."}]";
+            $params = "[{\"COMPRESSION\":\"\"".$ADDITIONAL_PARAMS."}]";
             $query = [
                 "Endpoint" => "'" . ClientGateway::ENDPOINT_LOOKUP . "'",
                 "Parms" => "'".$params."'",
@@ -503,7 +517,7 @@ class ClientGatewayController extends Controller
                 "\$format" => "json"
             ];
         } else if($json != null && $endpoint == null){
-            $params = "[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"".$TEST_RUN."\"".$SDK_HINT."}]";
+            $params = "[{\"COMPRESSION\":\"\"".$ADDITIONAL_PARAMS."}]";
             $query = [
                 "Endpoint" => "'" . ClientGateway::ENDPOINT_MANAGER . "'",
                 "Parms" => "'".$params."'",
@@ -511,7 +525,7 @@ class ClientGatewayController extends Controller
                 "\$format" => "json"
             ];
         } else if($endpoint != null && $json == null){
-            $params = "[{\"METADATA\":\"X\"".$SDK_HINT."}]";
+            $params = "[{\"METADATA\":\"X\"".$ADDITIONAL_PARAMS."}]";
             $query = [
                 "Endpoint" => "'" . $endpoint . "'",
                 "Parms" => "'".$params."'",
@@ -524,7 +538,7 @@ class ClientGatewayController extends Controller
             }
 
             if($style != null){
-                 $params = "[{\"COMPRESSION\":\"" . ($compression!=null ? $compression : "") . "\",\"TEST_RUN\":\"".$TEST_RUN."\",\"STYLE\":\"" . $style . "\"".$SDK_HINT."}]";
+                 $params = "[{\"COMPRESSION\":\"" . ($compression!=null ? $compression : "") . "\"".$ADDITIONAL_PARAMS."}]";
                 $query = [
                     "Endpoint" => "'" . $endpoint . "'",
                     "Parms" => "'".$params."'",
@@ -532,7 +546,7 @@ class ClientGatewayController extends Controller
                     "\$format" => "json"
                 ];
             } else {
-                $params = "[{\"COMPRESSION\":\"\",\"TEST_RUN\":\"".$TEST_RUN."\"".$SDK_HINT."}]";
+                $params = "[{\"COMPRESSION\":\"\"".$ADDITIONAL_PARAMS."}]";
                 $query = [
                     "Endpoint" => "'" . $endpoint . "'",
                     "Parms" => "'".$params."'",

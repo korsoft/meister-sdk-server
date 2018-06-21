@@ -87,14 +87,16 @@
             </div>
           </md-card-title-text>
         <md-actions>
+           <md-button class="md-icon-button" aria-label="Refresh" title="Refresh"
+                      ng-click="executeGateway()" style="padding: 0px; margin: 0px; width: 22px">
+                     <md-icon ng-bind="'cached'"></md-icon>
+                  </md-button>
                   <md-button hide-xs class="md-icon-button" aria-label="Refresh" title="Hide Tree"
                       ng-click="hide_tree()" style="padding: 0px; margin: 0px; width: 22px">
                      <md-icon ng-bind="'navigate_before'"></md-icon>
                   </md-button>
-                <!--<md-button class="md-icon-button" aria-label="Refresh" title="Refresh"
-                      ng-click="changeGateway(gatewaySelectedId)" style="padding: 0px; margin: 0px; width: 22px">
-                     <md-icon ng-bind="'cached'"></md-icon>
-                  </md-button>
+               
+                  <!--
                   <md-button class="md-icon-button" aria-label="Refresh" 
                       title="Add Module" 
                       ng-if="nodeSelected && nodeSelected.source.MODULES"
@@ -153,19 +155,19 @@
            <table md-table style="table-layout: fixed">
                     <thead md-head>
                       <tr md-row >
-                          <th md-column style="width: 35%">Property</th>
-                          <th md-column style="width: 50%">Value</th>
-                          <th md-column style="width: 15%"></th>
+                          <th md-column style="width: 100px">Property</th>
+                          <th md-column>Value</th>
+                          <th md-column style="width: 50px"></th>
                       </tr>
                     </thead>
                     <tbody md-body>
                       <tr md-row class="with-hover" ng-repeat="(key, value) in nodeSelected.source" ng-if="key!='PKY' && key!='FKY' && key!='MEISTER_OWN' && key!='LOGICAL_DELETE' && !isArray(value)">
-                        <td md-cell style="text-overflow:ellipsis;overflow:hidden;padding:0px"><span title="{{key}}">{{key}}</span></td>
+                        <td md-cell style="text-overflow:ellipsis;overflow:hidden;padding:0px;vertical-align:top;padding-top: 12px"><span title="{{key}}">{{key}}</span></td>
                         <td md-cell style="text-overflow:ellipsis;overflow:hidden;padding:0px">
 
                           <span ng-if="!nodeSelected.source[key+$index].$edit && key!='JSON'" title="{{isArray(value) ? '(Collection)' : value}}">{{isArray(value) ? '(Collection)' : value}}</span>
                           <div ng-if="!nodeSelected.source[key+$index].$edit && key=='JSON'">
-                            <div  ng-if="!nodeSelected.source[key+$index].$edit && key=='JSON'" ui-ace="{ mode: 'json'}" readonly style="width: 100%; height: 215px;"  ng-model="json_to_object(value)|json"></div>
+                            <div  ng-if="!nodeSelected.source[key+$index].$edit && key=='JSON'" ui-ace="{ mode: 'json'}" readonly style="width: 100%; height: 215px; background-color:#cccccc;"  ng-model="json_global_string" ></div>
                           </div>
                           <div ng-show="nodeSelected.source[key+$index].$edit && key=='LONG_TEXT'">
                               <md-input-container class="md-block">
@@ -300,3 +302,9 @@
 </md-content>
 </md-content>
 </div>
+
+<style type="text/css">
+  treenode .disabled {
+    color: rgba(0,0,0,0.87);
+  }
+</style>

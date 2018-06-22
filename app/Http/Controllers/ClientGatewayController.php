@@ -483,12 +483,14 @@ class ClientGatewayController extends Controller
 
         $endpoint = $request->input("endpoint");
         $json = $request->input("json");
-        $style = $request->input("style");
         $compression = $request->input("compression");
         $ADDITIONAL_PARAMS = "";
         
         $params = "";
 
+        if($request->input("style")!=null){
+            $ADDITIONAL_PARAMS .=",\"STYLE\":\"".$request->input("style")."\""; 
+        }
         if($request->input("SDK_HINT")!=null){
             $ADDITIONAL_PARAMS .=",\"SDK_HINT\":\"".$request->input("SDK_HINT")."\"" ;
         }
@@ -537,23 +539,14 @@ class ClientGatewayController extends Controller
                 $json= self::compress($json);
             }
 
-            if($style != null){
-                 $params = "[{\"COMPRESSION\":\"" . ($compression!=null ? $compression : "") . "\"".$ADDITIONAL_PARAMS."}]";
+            $params = "[{\"COMPRESSION\":\"" . ($compression!=null ? $compression : "") . "\"".$ADDITIONAL_PARAMS."}]";
                 $query = [
                     "Endpoint" => "'" . $endpoint . "'",
                     "Parms" => "'".$params."'",
                     "Json" => "'".$json."'",
                     "\$format" => "json"
                 ];
-            } else {
-                $params = "[{\"COMPRESSION\":\"\"".$ADDITIONAL_PARAMS."}]";
-                $query = [
-                    "Endpoint" => "'" . $endpoint . "'",
-                    "Parms" => "'".$params."'",
-                    "Json" => "'".$json."'",
-                    "\$format" => "json"
-                ];
-            } 
+             
         }
         $client_number = $request->input("client_number");
         if($client_number!=null){

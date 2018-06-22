@@ -488,6 +488,10 @@ class ClientGatewayController extends Controller
         
         $params = "";
 
+        if($json != null){
+            $json = str_replace("\\n", '', $json);
+        }
+
         if($request->input("style")!=null){
             $ADDITIONAL_PARAMS .=",\"STYLE\":\"".$request->input("style")."\""; 
         }

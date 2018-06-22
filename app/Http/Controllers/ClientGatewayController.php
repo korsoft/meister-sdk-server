@@ -272,8 +272,6 @@ class ClientGatewayController extends Controller
 
         $json = $request->input("json");
 
-        Log::info("execute_changes",["json"=>$json]);
-        
         $clientGateway = ClientGateway::find($id);
 
         if(!$clientGateway)
@@ -288,8 +286,54 @@ class ClientGatewayController extends Controller
 
             $body = (string) $response["response"]->getBody();
 
-            return json_decode($body, true);
+            $result = json_decode($body, true);
 
+            if(is_array($result) && count($result)>0){
+                if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
+                    $report = $result["d"]["results"][0];
+
+                    if(isset($report["Json"])){
+                        $json = str_replace("\\n", '', $report["Json"]);
+                        if(self::isJson($json)){
+                            $jsonArray = json_decode($json, true);
+                            Log::info("JSON Array",$jsonArray);
+                            if(isset($jsonArray["MESSAGES"]) && 
+                                count($jsonArray["MESSAGES"])>0){
+                                foreach ($jsonArray["MESSAGES"] as $message) {
+                                   if(isset($message["MESSAGE"]) &&
+                                        isset($message["TYPE"]) && 
+                                        $message["TYPE"] == "E" &&
+                                        strlen($message["MESSAGE"])>0){
+                                        return response()->json(array(
+                                                'code'      =>  404,
+                                                'message'   =>  $message["MESSAGE"]
+                                            ), 404);
+                                    }
+                                }
+                                
+                                
+                            }
+                            return [
+                                "url" => $response["url"],
+                                "data" => $jsonArray
+                            ]; 
+                        } else {
+                            return response()->json(array(
+                                'code'      =>  404,
+                                'message'   =>  "Invalid JSON Response"
+                            ), 404);
+                        }
+                        
+                    }
+                }
+            }
+
+             return response()->json(array(
+                                'code'      =>  404,
+                                'message'   =>  "Invalid JSON Response"
+                            ), 404);
+
+            
         } catch(\GuzzleHttp\Exception\ClientException $e){
             Log::info("ClientException",["result" => $e]);
             throw new Exception("Connection failure", 1);

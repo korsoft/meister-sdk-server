@@ -1,7 +1,7 @@
 (function(app) {
 	app.controller('EndpointDialogController',
-    ['$scope','$mdDialog','endpoint','parentNode','gateway','json','GatewayService','MessageUtil','endpoints_names','endpoints_main',
-    function ($scope, $mdDialog, endpoint, parentNode, gateway,json, GatewayService, MessageUtil,endpoints_names,endpoints_main) {
+    ['$scope','$mdDialog','endpoint','parentNode','gateway','json','GatewayService','MessageUtil','endpoints_names','endpoints_main','style_library',
+    function ($scope, $mdDialog, endpoint, parentNode, gateway,json, GatewayService, MessageUtil,endpoints_names,endpoints_main,style_library) {
         $scope.endpoint = {};
         $scope.parentNode = {};
         $scope.page=1;
@@ -9,12 +9,14 @@
         $scope.uniqueName=false;
         $scope.band_i=1;
         $scope.band_o=1;
+        $scope.style_library = angular.copy(style_library);
 
         $scope.promise = null;
          $scope.cancel = function() {
            $mdDialog.cancel();
         };
 
+        console.log("style_library",style_library);
         $scope.$watch('endpoint.NAMESPACE',  function () {
           var band = true;
           $scope.uniqueName=true;
@@ -38,6 +40,15 @@
           });
 
         });
+
+         $scope.format_json = function(style){
+          style.source.$JSON = JSON.stringify(JSON.parse(style.source.JSON),null,"\t");
+        };
+
+       $scope.onDrop = function($event,$data, style){
+        console.log("onDrop",$data);
+        style.JSON = $data.$JSON;
+       };
 
         $scope.changeJSON=function(e){
           for(var i=0; i<$scope.endpoint.STYLES.length;i++)
@@ -78,7 +89,7 @@
           $scope.endpoint.LOCKED = "";
           $scope.endpoint.PACKAGE = "";
           $scope.endpoint.TRANSPORT = "";
-          $scope.endpoint.STYLES = [{PKY:"",DIRECTION:"I",NAME:"Default_I",JSON:"",CLASS_NAME:"",BAND:false},{PKY:"",DIRECTION:"O",NAME:"Default_O",JSON:"",CLASS_NAME:"",BAND:false} ];
+          $scope.endpoint.STYLES = [{PKY:"",DIRECTION:"I",NAME:"Default",JSON:"",CLASS_NAME:"",BAND:false},{PKY:"",DIRECTION:"O",NAME:"Default",JSON:"",CLASS_NAME:"",BAND:false} ];
         } else {
           $scope.endpoint = angular.copy(endpoint);
         }
@@ -104,6 +115,7 @@
             json: angular.toJson(json_to_send)
           };
 
+          console.log(json);
             $scope.promise = GatewayService.execute_changes(gateway.id, params);
             
             $scope.promise.then(

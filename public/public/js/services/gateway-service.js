@@ -42,7 +42,20 @@
             return $http.post(SERVER_BASE_URL + '/api/clientgateways/'+id+'/execute_endpoint',params);
         };
 
-        
+        service.buildJsonByNewProject = function(json,project){
+            console.log("buildJsonByNewProject...");
+            console.log("json",json);
+            console.log("project",project);
+            var json_to_send = {};
+
+            json_to_send.PKY = project.PKY ? project.PKY : "";
+            json_to_send.PROJECT = project.PROJECT;
+            json_to_send.LOGICAL_DELETE = project.LOGICAL_DELETE;
+            json_to_send.MEISTER_OWN = project.MEISTER_OWN;
+            json_to_send.MODULES = [];
+            json_to_send.STYLE_LIB = [];    
+            return json_to_send;
+        };
 
         service.buildJsonByNewModule = function(json, parentNode,module){
             console.log("buildJsonByNewEndpoint...");
@@ -82,7 +95,10 @@
             console.log("parentNode",parentNode);
             console.log("endpoint",endpoint);
             var json_to_send = {};
-            _.forEach(json, function(project){
+            var project = _.find(json, function(p){
+                return p.PKY == parentNode.FKY;
+            });
+            if(project){
                 console.log("project",project);
                 json_to_send.PKY = project.PKY;
                 json_to_send.PROJECT = project.PROJECT;
@@ -104,33 +120,35 @@
                     endpoint.FKY = module.PKY;
                     moduleItem.ENDPOINTS.push(endpoint);
                     json_to_send.MODULES.push(moduleItem);
-                    return false;
                 }
-            });
+            }
             return json_to_send;
         };
 
         service.buildJsonByNewStyle = function(json, parentNode, style){
-            console.log("buildJsonByNewEndpoint...");
+            console.log("buildJsonByNewStyle...");
             console.log("json",json);
             console.log("parentNode",parentNode);
             console.log("style",style);
             var json_to_send = {};
-            _.forEach(json, function(project){
-                console.log("project",project);
-                json_to_send.PKY = project.PKY;
+
+            var project = _.find(json, function(p){
+                return p.PKY == parentNode.source.parent.FKY;
+            });
+            if(project){
+
+                 json_to_send.PKY = project.PKY;
                 json_to_send.PROJECT = project.PROJECT;
                 json_to_send.MODULES = [];
+
                 var module = _.find(project.MODULES, function(m){
-                    var endpoint = _.find(m.ENDPOINTS, function(e){
-                        return e.PKY == parentNode.PKY;
-                    });
-                    if(endpoint)
-                        return m;
+                    return m.PKY == parentNode.FKY;
                 });
-                console.log("module",module);
-                if(module){
-                    var moduleItem = {
+                console.log("project",project);
+
+               
+               if(module){
+                 var moduleItem = {
                       PKY: module.PKY,
                       NAME: module.NAME,
                       DATE:module.DATE.split("-").join(""),
@@ -138,17 +156,41 @@
                       LOGICAL_DELETE:  module.LOGICAL_DELETE,
                       ENDPOINTS: []
                     };
-                    var endpoint = _.find(module.ENDPOINTS, function(e){
+                    var endpoint = _.find(m.ENDPOINTS, function(e){
                         return e.PKY == parentNode.PKY;
                     });
+                   
+                    if(endpoint){
 
                     endpoint.STYLES = [];
                     endpoint.STYLES.push(style);
                     moduleItem.ENDPOINTS.push(endpoint);
                     json_to_send.MODULES.push(moduleItem);
-                    return false;
+                    
+                    }
                 }
+            
+            };
+            return json_to_send;
+        };
+
+        service.buildJsonByNewStyleTemplate = function(json, parentNode, style){
+            var json_to_send = {};
+            var project = _.find(json, function(p){
+                return p.PKY == parentNode.PKY;
             });
+          
+            console.log("project",project);
+            json_to_send.PKY = project.PKY;
+            json_to_send.PROJECT = project.PROJECT;
+            json_to_send.STYLE_LIB = [];
+            style.FKY = project.PKY;
+            
+
+            json_to_send.STYLE_LIB.push(style);
+               
+           
+         
             return json_to_send;
         };
 

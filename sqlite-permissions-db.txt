@@ -1,6 +1,6 @@
 chmod -R ug+rwx storage/ 
 chgrp -R www-data storage/ bootstrap/cache/
-chown :www-data storage/database/meister.sqlite
+chown :www-data storage/databases/meister.sqlite
 
 
 

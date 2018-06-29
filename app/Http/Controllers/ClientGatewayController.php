@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\ClientGateway;
 use App\User;
 use App\ClientGatewayRelation;
+use App\LogRequests;
 
 use Exception;
 
@@ -265,6 +266,7 @@ class ClientGatewayController extends Controller
     }
 
     public function execute_changes(Request $request, $id){
+        $user = $request->user();
         
         $request->validate([
             'json' => 'required'
@@ -281,7 +283,7 @@ class ClientGatewayController extends Controller
             
             $response = self::response_connection($clientGateway, $request);
 
-           if($response["response"]->getStatusCode()!="200")
+            if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
 
             $body = (string) $response["response"]->getBody();
@@ -304,6 +306,14 @@ class ClientGatewayController extends Controller
                                         isset($message["TYPE"]) && 
                                         $message["TYPE"] == "E" &&
                                         strlen($message["MESSAGE"])>0){
+                                       
+                                        $logRquest = new LogRequests();
+                                        $logRquest->user_id = $user->id;
+                                        $logRquest->body=$body;
+                                        $logRquest->exception_type=1;
+                                        $logRquest->request_type=1;
+                                        $logRquest->save();
+                                        
                                         return response()->json(array(
                                                 'code'      =>  404,
                                                 'message'   =>  $message["MESSAGE"]
@@ -313,11 +323,18 @@ class ClientGatewayController extends Controller
                                 
                                 
                             }
+
                             return [
                                 "url" => $response["url"],
                                 "data" => $jsonArray
                             ]; 
                         } else {
+                            $logRquest = new LogRequests();
+                            $logRquest->user_id = $user->id;
+                            $logRquest->body=$body;
+                            $logRquest->exception_type=2;
+                            $logRquest->request_type=1;
+                            $logRquest->save();
                             return response()->json(array(
                                 'code'      =>  404,
                                 'message'   =>  "Invalid JSON Response"
@@ -328,6 +345,12 @@ class ClientGatewayController extends Controller
                 }
             }
 
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body="Format Exeption";
+            $logRquest->exception_type=3;
+            $logRquest->request_type=1;
+            $logRquest->save();
              return response()->json(array(
                                 'code'      =>  404,
                                 'message'   =>  "Invalid JSON Response"
@@ -335,15 +358,29 @@ class ClientGatewayController extends Controller
 
             
         } catch(\GuzzleHttp\Exception\ClientException $e){
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body="ClientException";
+            $logRquest->exception_type=4;
+            $logRquest->request_type=1;
+            $logRquest->save();
             Log::info("ClientException",["result" => $e]);
             throw new Exception("Connection failure", 1);
         } catch(Exception $e){
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body="Exception";
+            $logRquest->exception_type=5;
+            $logRquest->request_type=1;
+            $logRquest->save();
             Log::info("Exception",["result" => $e]);
             throw new Exception("Connection failure", 1);
         }
     }
 
     public function execute_endpoint(Request $request, $id){
+        $user = $request->user();
+        
         $request->validate([
             'endpoint' => 'required'
         ]);
@@ -354,8 +391,15 @@ class ClientGatewayController extends Controller
         
         $clientGateway = ClientGateway::find($id);
 
-        if(!$clientGateway)
+        if(!$clientGateway){
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body="Error the gateway doesn't exist";
+            $logRquest->exception_type=6;
+            $logRquest->request_type=2;
+            $logRquest->save();
             throw new Exception("Error the gateway doesn't exist", 1);
+        }
 
         try {
             
@@ -386,12 +430,18 @@ class ClientGatewayController extends Controller
                         $json = str_replace("\\n", '', $report["Json"]);
                         //$json =  stripslashes($json);
                         Log::info("Result in execute_endpoint (json): " .$json);
-                        if(self::isJson($json)){
+                        if(!self::isJson($json)){
                             return [
                                 "url" => $response["url"],
                                 "data" => json_decode($json, true)
                             ]; 
                         } else {
+                            $logRquest = new LogRequests();
+                            $logRquest->user_id = $user->id;
+                            $logRquest->body=$body;
+                            $logRquest->exception_type=1;
+                            $logRquest->request_type=2;
+                            $logRquest->save();
                             return response()->json(array(
                                 'code'      =>  404,
                                 'message'   =>  "Invalid JSON Response"
@@ -409,9 +459,21 @@ class ClientGatewayController extends Controller
 
         } catch(\GuzzleHttp\Exception\ClientException $e){
             Log::info("ClientException",["result" => $e]);
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body="Connection failure";
+            $logRquest->exception_type=4;
+            $logRquest->request_type=2;
+            $logRquest->save();
             throw new Exception("Connection failure", 1);
         } catch(Exception $e){
             Log::info("Exception",["result" => $e]);
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body="Connection failure";
+            $logRquest->exception_type=5;
+            $logRquest->request_type=2;
+            $logRquest->save();
             throw new Exception("Connection failure", 1);
         }
 
@@ -450,7 +512,7 @@ class ClientGatewayController extends Controller
             $auth = ['auth' => [$clientGateway->username,$clientGateway->password, $clientGateway->digest]];
         } else if($clientGateway->auth_type == ClientGateway::AUTH_TYPE_FORM){
              $auth  =['form_params' => [
-                'username' => $clientGateway->username,
+                'username' => $clientGateway->username."s",
                 'password' => $clientGateway->password
             ]];
         } else if($clientGateway->auth_type == ClientGateway::AUTH_TYPE_OAUTH){

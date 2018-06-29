@@ -35,21 +35,24 @@
 
 		$scope.json_logs_executes = [];
 		$scope.json_logs_executes_title = null;
-		$scope.json_logs_executes_content = null;
-		$scope.json_logs_executes_content_obj = null;
-
+		
 		$scope.tree_collapsible = false;
+		$scope.tree_collapsible_execute =  false;
+		$scope.hide_results =  false;
 
 		$scope.url_details = "";
         $scope.edit={};
 		$scope.edit.current_long_text="";
 		$scope.edit.current_description="";
+		$scope.add_endpoint = false;
 
 
 		$scope.style_template = {};
 		$scope.client = {};
 		var endpoints_names=[];
 		var endpoints_main=[];
+		$scope.node = null;
+		$scope.parentNode = null;
 
         var stopMenu =function(e) {
         	if(e.target.getAttribute('class') !== "ace_text-input")
@@ -70,6 +73,14 @@
 			$scope.tree_collapsible = false;
 		}
 
+		$scope.hide_tree_execute = function(){
+			$scope.tree_collapsible_execute = true;
+		}
+
+		$scope.show_tree_execute = function(){
+			$scope.tree_collapsible_execute = false;
+		}
+
 		$scope.mode_run = false;
 
 		$scope.init = function(){
@@ -77,6 +88,8 @@
 			console.log("home controller init...");
 
 			$scope.promise = GatewayService.index();
+
+			$scope.add_endpoint = false;
 
 			$scope.promise.then(
 				function(result){
@@ -101,8 +114,8 @@
 			    return Object.prototype.toString.call(what) === '[object Array]';
 		}
 
-		$scope.build_tree = function(){
-
+		$scope.build_tree = function(selectNodeConfig){
+			$scope.add_endpoint = false;
 			$scope.basicTree = [];
 			var isMeister= $rootScope.isMeister();
 			
@@ -252,6 +265,14 @@
 						    	&& !isMeister){
 						    	return;
 						    }
+						    var is_selected = false;
+						    console.log("selectNodeConfig",selectNodeConfig);
+						    if(selectNodeConfig){
+						    	if(selectNodeConfig.type == "ENDPOINT"){
+						    		is_selected = selectNodeConfig.value === endpoint.NAMESPACE;
+						    	}
+						    }
+						    console.log("is selected",is_selected);
 							endpoints_names.push(endpoint.NAMESPACE);
 							endpoints_main.push(endpoint.ENDPOINT_MAIN);
 							var icon = imageEndpoint(endpoint);
@@ -261,6 +282,7 @@
 								source: endpoint,
 								image: icon,
 								expanded: false,
+								selected:is_selected,
 								parent:moduleItem,
 								is_deleted:  endpoint.LOGICAL_DELETE,
 								children: []
@@ -273,7 +295,11 @@
 								}
 							}else{
 								moduleItem.children.push(endpointItem);
-							}							
+							}	
+							if(endpointItem.selected){
+								$scope.nodeSelected = endpointItem;
+
+							}						
 							_.forEach(endpoint.STYLES, function(style){
 								var styleItem = {
 									name: style.NAME,
@@ -292,9 +318,12 @@
 				
 				
 			}
+
+			$scope.$emit('selection-changed', $scope.nodeSelected);
+			
 		};
 
-		$scope.executeGateway = function(){
+		$scope.executeGateway = function(selectNodeConfig){
 			$scope.loading_tree = true;
 			$scope.nodeSelected = null;
 			$scope.nodeExpanded = null;
@@ -302,6 +331,7 @@
 			$scope.mode_run = false;
 			$scope.url_details = "";
 			$scope.styleSelected = null;
+			$scope.add_endpoint = false;
 			if($scope.gatewaySelected.id){
 				params={};
 				if($scope.client.id){
@@ -315,7 +345,7 @@
 						console.log("result",result);
 	                     gatewayResponse = result.data;
 	                      MessageUtil.showInfo("Gateway data loaded");
-	                     $scope.build_tree();
+	                     $scope.build_tree(selectNodeConfig);
 					},
 					function(error){
 						$scope.loading_tree = false;
@@ -328,6 +358,7 @@
 
 		$scope.changeGateway = function(id){
 			$scope.gatewaySelectedId = id;
+			$scope.add_endpoint = false;
 			console.log("Gateway selected", $scope.gatewaySelectedId);
 			$scope.gatewaySelected = _.find($scope.gateways,function(g){
 				return id == g.id;
@@ -362,17 +393,22 @@
 
 	     $scope.$on('selection-changed', function (e, node) {
 	     	console.log("Node selected",node);
+
+	     	$scope.node = node;
+	     	$scope.nodeSelected = node;
 	        $scope.payload_json = {json: null, options: {mode: 'tree'}};
 	        $scope.url_details = "";
-	        $scope.nodeSelected = node;
 	        $scope.mode_run = false;
 	        $scope.styles = [];
 	        $scope.styleSelected = null;
-	        if(!node.source){
-	     		$scope.nodeSelected = null;
+
+	     	if(!node || !node.source){
 	     		return;
 	     	}
-	        $scope.nodeSelected = node;
+
+	     	if(!node.type || (node.type !== "style_template" && (node.type !== "STYLE_TEMPLATE_PARENT")))
+	     		$scope.add_endpoint = false;
+	      
 	        if(node.source.STYLES && node.source.STYLES.length>0){
 	        	console.log("Styles",node.source.STYLES);
 	        	$scope.styles = _.filter(node.children,function(n){
@@ -383,7 +419,7 @@
 	        	    $scope.styleSelected.parent = node;
 	        	}*/	        	
 	        }
-	        
+	        $scope.clear_log_json_result();
 	        if($scope.nodeSelected.source.hasOwnProperty("JSON")){
 	        	$scope.json_global_string=JSON.stringify(JSON.parse($scope.nodeSelected.source.JSON),null,"\t");
 	        }
@@ -400,7 +436,7 @@
 	        else if(obj.actionName == "addEndpoint")
 	        	$scope.addEndpoint(obj.sourceEvent,obj.node);
 	        else if(obj.actionName == "add_style_lib")
-	        	$scope.addStyle(obj.sourceEvent,obj.node.parent);
+	        	$scope.addStyle(obj.sourceEvent,obj.node.parent, null);
 	        else if(obj.actionName == "execute")
 	        	$scope.execute(obj.sourceEvent,obj.node);
 	        else if(obj.actionName == "execute_by_style")
@@ -408,10 +444,21 @@
 
     	});
 
+	     $scope.$on('ondrop-node-style-to-library', function(e, obj){
+	     	console.log("ondrop-node-style-to-library",obj);
+	     	$scope.addStyle(e, obj.library.parent, obj.style);
+	     });
+
 	    $scope.$on('undelete-style-lib', function (e, obj) {
 	        
             var json_to_send =  GatewayService.buildJsonByNewStyleTemplate($scope.json, obj.node.parent.parent, obj.node.source);
-          
+          	//delete json_to_send.STYLE_LIB[0].DESCRIPTION;
+          	//delete json_to_send.STYLE_LIB[0].JSON;
+          	//delete json_to_send.STYLE_LIB[0].LOGICAL_DELETE;
+          	//delete json_to_send.STYLE_LIB[0].MEISTER_OWN;
+          	//json_to_send.PKY = obj.node.source.PKY;
+          	//json_to_send.FKY = obj.node.source.FKY;
+
             var params = {
              json: JSON.stringify(json_to_send),
              SDK_HINT:"RLD"
@@ -435,7 +482,12 @@
 
     	$scope.$on('delete-style-lib', function (e, obj) {
 	       var json_to_send =  GatewayService.buildJsonByNewStyleTemplate($scope.json, obj.node.parent.parent, obj.node.source);
-          
+          	//delete json_to_send.STYLE_LIB[0].DESCRIPTION;
+          	//delete json_to_send.STYLE_LIB[0].JSON;
+          	//delete json_to_send.STYLE_LIB[0].LOGICAL_DELETE;
+          	//delete json_to_send.STYLE_LIB[0].MEISTER_OWN;
+          	//json_to_send.PKY = obj.node.source.PKY;
+          	//json_to_send.FKY = obj.node.source.FKY;
             var params = {
              json: JSON.stringify(json_to_send),
              SDK_HINT:"SLD"
@@ -720,31 +772,6 @@
 	        });
     	});
 
-	     $scope.$on('selection-changed', function (e, node) {
-	        console.log("Node selected",node);
-	        $scope.payload_json = {json: null, options: {mode: 'tree'}};
-	        $scope.url_details = "";
-	        $scope.nodeSelected = node;
-	        $scope.styles = [];
-	        $scope.mode_run = false;
-	        $scope.styleSelected = null;
-	        if(!node.source){
-	     		$scope.nodeSelected = null;
-	     		return;
-	     	}
-	     	$scope.nodeSelected = node;
-	        if(node.source.STYLES && node.source.STYLES.length>0){
-	        	console.log("Styles",node.source.STYLES);
-	        	$scope.styles = _.filter(node.children,function(n){
-	        		return n.source.DIRECTION =="O";
-	        	} );
-	        	/*if($scope.styles.length>0){
-	        		$scope.styleSelected = $scope.styles[0];
-	        	    $scope.styleSelected.parent = node;
-	        	}*/	 
-	        }
-	    });
-
 	     $scope.addModule = function(ev, parentNode){
 	     	$scope.mode_run = false;
 	     	$mdDialog.show({
@@ -793,8 +820,9 @@
 	              });
 		     };
 
-	     $scope.addEndpoint = function(ev, parentNode){
+	     /*$scope.addEndpoint = function(ev, parentNode){
 	     	$scope.mode_run = false;
+	     	$scope.add_endpoint = true;
 	     	$scope.style_template = _.find(parentNode.parent.children, function(item){
 	     		return item.type === "STYLE_TEMPLATE_PARENT";
 	     	});
@@ -822,9 +850,54 @@
               }, function() {
                
               });
+	     };*/
+
+	     $scope.$on('add-endpoint-closed', function (e, data) {
+	     	console.log("add-endpoint-closed",data);
+	        $scope.add_endpoint = false;
+	    });
+
+	     $scope.$on('add-endpoint-saved', function (e, data) {
+	     	console.log("add-endpoint-saved",data);
+	        $scope.add_endpoint = false;
+	        MessageUtil.showInfo("Endpoint was created");
+	        var nodeSelectedConfig = {
+	        	type: "ENDPOINT",
+	        	value: data.endpoint.NAMESPACE
+	        };
+            $scope.executeGateway(nodeSelectedConfig);
+	    });
+
+	     $scope.addEndpoint = function(ev, parentNode){
+	     	$scope.mode_run = false;
+	     	$scope.add_endpoint = true;
+	     	$scope.parentNode  =parentNode;
+	     	console.log("style Library",$scope.style_template);
+	     	/*$mdDialog.show({
+                controller: 'EndpointDialogController',
+                templateUrl: 'templates/endpoint-dialog-form.html',
+                parent: angular.element(document.body),
+                targetEvent: ev,
+                clickOutsideToClose:false,
+                escapeToClose: false,
+                locals: {
+                 endpoint: null,
+                 parentNode: parentNode,
+                 gateway: $scope.gatewaySelected,
+                 json: $scope.json,
+                 endpoints_names: endpoints_names,
+                 endpoints_main: endpoints_main,
+                 
+               }
+              })
+              .then(function(result) {
+                MessageUtil.showInfo("Endpoint was created");
+                $scope.executeGateway();
+              }, function() {
+               
+              });*/
 	     };
-  
-  		$scope.addStyle = function(ev, parentNode){
+  		$scope.addStyle = function(ev, parentNode, style){
   			$scope.mode_run = false;
 	     	$mdDialog.show({
                 controller: 'StyleDialogController',
@@ -834,7 +907,7 @@
                 clickOutsideToClose:false,
                 escapeToClose: false,
                 locals: {
-                 style: null,
+                 style: style,
                  parentNode: parentNode,
                  gateway: $scope.gatewaySelected,
                  json: $scope.json
@@ -868,7 +941,7 @@
 		
 			var params = {"endpoint":node.name};
 			var node={};
-			$scope.payload_json = {};
+			$scope.payload_json = {json: null, options: {mode: 'tree'}};
 			$scope.json_logs_executes_title=null;
 			$scope.mode_run = true;
 			/*if($scope.styleSelected){
@@ -929,7 +1002,7 @@
 
 		$scope.execute_details = function(event){
 			var node = null;
-			
+			$scope.hide_results = false;
 			if($scope.styleSelected)
 				node = $scope.styleSelected.parent;
 			else
@@ -1002,7 +1075,7 @@
 						nodeSelected : node,
 						opt: $scope.opt,
 						selectedIndex: $scope.opt.selectedIndex,
-						payload_json: $scope.payload_json,
+						payload_json: angular.copy( $scope.payload_json),
 						styleSelected: $scope.styleSelected
 					};
 
@@ -1011,9 +1084,6 @@
 					$scope.json_logs_content_obj = result.data.data; //angular.fromJson(result.data.data.d.results[0].Json);
 					$scope.json_logs.push(json_text_item);
 
-					$scope.json_logs_executes_title = json_execute_text_item.title;
-					$scope.json_logs_executes_content = json_text_item.content;
-					$scope.json_logs_excutes_content_obj = result.data.data; //angular.fromJson(result.data.data.d.results[0].Json);
 					$scope.json_logs_executes.push(json_execute_text_item);
 
 					//$scope.json_details += "<span class=\"title-log-result\">" + json_text_title + ": Result</span><br/>";
@@ -1043,9 +1113,9 @@
 			if(item_selected){
 				$scope.nodeSelected =item_selected.nodeSelected;
 				$scope.opt = item_selected.opt;
-				$scope.payload_json = item_selected.payload_json;
+				$scope.payload_json = angular.copy(item_selected.payload_json);
 				$scope.styleSelected = item_selected.styleSelected;
-				console.log($scope.styleSelected);
+				console.log($scope.payload_json);
 			}
 		}
 
@@ -1185,6 +1255,32 @@
 				else
 					return '/public/images/endpoint.png';					
 			}
+        }
+
+        $scope.sizeView = function(){
+        	if(!$scope.mode_run || $scope.json_logs.length==0 || $scope.hide_results){
+        		return $scope.tree_collapsible ? 95 : 70;
+        	}else{
+        		return $scope.tree_collapsible ? 45 : 35;
+        	}
+
+        }
+
+        $scope.sizeViewExecute = function(){
+        	if($scope.tree_collapsible && $scope.tree_collapsible_execute ){
+        		return 90;
+        	}else if($scope.tree_collapsible && !$scope.tree_collapsible_execute ) {
+        		return 50;
+        	}if(!$scope.tree_collapsible && $scope.tree_collapsible_execute){
+                return 70;
+        	}else{
+                return 35;
+        	}
+
+        }
+
+        $scope.hideResults= function(){
+        	$scope.hide_results = true;
         }
 
 	}]);

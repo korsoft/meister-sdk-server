@@ -430,7 +430,7 @@ class ClientGatewayController extends Controller
                         $json = str_replace("\\n", '', $report["Json"]);
                         //$json =  stripslashes($json);
                         Log::info("Result in execute_endpoint (json): " .$json);
-                        if(!self::isJson($json)){
+                        if(self::isJson($json)){
                             return [
                                 "url" => $response["url"],
                                 "data" => json_decode($json, true)

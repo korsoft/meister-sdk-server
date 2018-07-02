@@ -27,7 +27,7 @@ class LogRequests extends Model
      *
      */
     protected $fillable = [
-        'id','user_id','body','exception_type','request_type','created_at','updated_at'
+        'id','user_id','body','url','exception_type','request_type','created_at','updated_at'
     ];
     
     protected $dates= [

@@ -312,6 +312,7 @@ class ClientGatewayController extends Controller
                                         $logRquest->body=$body;
                                         $logRquest->exception_type=1;
                                         $logRquest->request_type=1;
+                                        $logRquest->url = $response["url"];
                                         $logRquest->save();
                                         
                                         return response()->json(array(
@@ -334,6 +335,7 @@ class ClientGatewayController extends Controller
                             $logRquest->body=$body;
                             $logRquest->exception_type=2;
                             $logRquest->request_type=1;
+                            $logRquest->url = $response["url"];
                             $logRquest->save();
                             return response()->json(array(
                                 'code'      =>  404,
@@ -350,6 +352,7 @@ class ClientGatewayController extends Controller
             $logRquest->body="Format Exeption";
             $logRquest->exception_type=3;
             $logRquest->request_type=1;
+            $logRquest->url = $response["url"];
             $logRquest->save();
              return response()->json(array(
                                 'code'      =>  404,
@@ -363,6 +366,7 @@ class ClientGatewayController extends Controller
             $logRquest->body="ClientException";
             $logRquest->exception_type=4;
             $logRquest->request_type=1;
+            $logRquest->url = $json;
             $logRquest->save();
             Log::info("ClientException",["result" => $e]);
             throw new Exception("Connection failure", 1);
@@ -372,6 +376,7 @@ class ClientGatewayController extends Controller
             $logRquest->body="Exception";
             $logRquest->exception_type=5;
             $logRquest->request_type=1;
+            $logRquest->url = $json;
             $logRquest->save();
             Log::info("Exception",["result" => $e]);
             throw new Exception("Connection failure", 1);
@@ -397,6 +402,7 @@ class ClientGatewayController extends Controller
             $logRquest->body="Error the gateway doesn't exist";
             $logRquest->exception_type=6;
             $logRquest->request_type=2;
+            $logRquest->url = $endpoint;
             $logRquest->save();
             throw new Exception("Error the gateway doesn't exist", 1);
         }
@@ -441,6 +447,7 @@ class ClientGatewayController extends Controller
                             $logRquest->body=$body;
                             $logRquest->exception_type=1;
                             $logRquest->request_type=2;
+                            $logRquest->url = $response["url"];
                             $logRquest->save();
                             return response()->json(array(
                                 'code'      =>  404,
@@ -462,6 +469,7 @@ class ClientGatewayController extends Controller
             $logRquest = new LogRequests();
             $logRquest->user_id = $user->id;
             $logRquest->body="Connection failure";
+            $logRquest->url = $endpoint;
             $logRquest->exception_type=4;
             $logRquest->request_type=2;
             $logRquest->save();
@@ -471,6 +479,7 @@ class ClientGatewayController extends Controller
             $logRquest = new LogRequests();
             $logRquest->user_id = $user->id;
             $logRquest->body="Connection failure";
+            $logRquest->url = $endpoint;
             $logRquest->exception_type=5;
             $logRquest->request_type=2;
             $logRquest->save();

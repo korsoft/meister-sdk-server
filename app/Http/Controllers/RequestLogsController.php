@@ -41,5 +41,10 @@ class RequestLogsController extends Controller
         
     }
 
+    public function deleteAll(Request $request){
+        LogRequests::truncate();
+        return [];
+    }
+
     
 }

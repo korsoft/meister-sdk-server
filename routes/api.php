@@ -68,6 +68,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     );
     
     Route::get('/requestlogs','RequestLogsController@index');
+    Route::delete('/requestlogs/all','RequestLogsController@deleteAll');
 
     Route::get('/clientuserrole/byuserid/{id}','ClientUserRoleController@getByUserId');
     Route::get('/clientuserrole/byclientanduserid/{client_id}/{user_id}','ClientUserRoleController@getByClientAndUserId');

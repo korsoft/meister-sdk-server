@@ -349,7 +349,7 @@ class ClientGatewayController extends Controller
 
             $logRquest = new LogRequests();
             $logRquest->user_id = $user->id;
-            $logRquest->body="Format Exeption";
+            $logRquest->body=$body;
             $logRquest->exception_type=3;
             $logRquest->request_type=1;
             $logRquest->url = $response["url"];
@@ -360,23 +360,27 @@ class ClientGatewayController extends Controller
                             ), 404);
 
             
-        } catch(\GuzzleHttp\Exception\ClientException $e){
+        } catch(\GuzzleHttp\Exception\RequestException $e){
+            $auth = self::build_auth($clientGateway, $request);
+            $url = $clientGateway->url . ClientGateway::URL_GENERIC_PATH . "?" . self::build_http_query($auth["query"]);
             $logRquest = new LogRequests();
             $logRquest->user_id = $user->id;
-            $logRquest->body="ClientException";
+            $logRquest->body=$e->getResponse()->getBody();
             $logRquest->exception_type=4;
             $logRquest->request_type=1;
-            $logRquest->url = $json;
+            $logRquest->url = $url;
             $logRquest->save();
             Log::info("ClientException",["result" => $e]);
             throw new Exception("Connection failure", 1);
         } catch(Exception $e){
+            $auth = self::build_auth($clientGateway, $request);
+            $url = $clientGateway->url . ClientGateway::URL_GENERIC_PATH . "?" . self::build_http_query($auth["query"]);
             $logRquest = new LogRequests();
             $logRquest->user_id = $user->id;
-            $logRquest->body="Exception";
+            $logRquest->body=$e->getMessage();
             $logRquest->exception_type=5;
             $logRquest->request_type=1;
-            $logRquest->url = $json;
+            $logRquest->url = $url;
             $logRquest->save();
             Log::info("Exception",["result" => $e]);
             throw new Exception("Connection failure", 1);
@@ -464,22 +468,26 @@ class ClientGatewayController extends Controller
                 "data" => []
             ];
 
-        } catch(\GuzzleHttp\Exception\ClientException $e){
+        } catch(\GuzzleHttp\Exception\RequestException $e){
             Log::info("ClientException",["result" => $e]);
+            $auth = self::build_auth($clientGateway, $request);
+            $url = $clientGateway->url . ClientGateway::URL_GENERIC_PATH . "?" . self::build_http_query($auth["query"]);
             $logRquest = new LogRequests();
             $logRquest->user_id = $user->id;
-            $logRquest->body="Connection failure";
-            $logRquest->url = $endpoint;
+            $logRquest->body=$e->getResponse()->getBody();
+            $logRquest->url = $url;
             $logRquest->exception_type=4;
             $logRquest->request_type=2;
             $logRquest->save();
             throw new Exception("Connection failure", 1);
         } catch(Exception $e){
             Log::info("Exception",["result" => $e]);
+             $auth = self::build_auth($clientGateway, $request);
+            $url = $clientGateway->url . ClientGateway::URL_GENERIC_PATH . "?" . self::build_http_query($auth["query"]);
             $logRquest = new LogRequests();
             $logRquest->user_id = $user->id;
-            $logRquest->body="Connection failure";
-            $logRquest->url = $endpoint;
+            $logRquest->body=$e->getMessage();
+            $logRquest->url = $url;
             $logRquest->exception_type=5;
             $logRquest->request_type=2;
             $logRquest->save();
@@ -510,10 +518,7 @@ class ClientGatewayController extends Controller
         return $bytes;   
     }
 
-    protected static function response_connection($clientGateway, $request){
-
-        $clientGuzz = new \GuzzleHttp\Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false), )); 
-
+    protected static function build_auth($clientGateway, $request){
         $auth = [];
         if($clientGateway->auth_type == ClientGateway::AUTH_TYPE_BASIC){
             $auth = ['auth' => [$clientGateway->username,$clientGateway->password]];
@@ -567,6 +572,15 @@ class ClientGatewayController extends Controller
         }
 
         $auth["query"] = self::getQueryParamsForGateway($clientGateway, $request);
+
+        return $auth;
+    }
+
+    protected static function response_connection($clientGateway, $request){
+
+        $clientGuzz = new \GuzzleHttp\Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false), )); 
+
+        $auth = self::build_auth($clientGateway, $request);
 
         Log::info("Auth",$auth);
         

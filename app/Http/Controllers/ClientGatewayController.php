@@ -196,7 +196,7 @@ class ClientGatewayController extends Controller
 
     public function test_connection(Request $request, $id){
         $clientGateway = ClientGateway::find($id);
-
+        $user = $request->user();
         if(!$clientGateway)
             throw new Exception("Error the gateway doesn't exist", 1);
 
@@ -211,16 +211,34 @@ class ClientGatewayController extends Controller
 
         } catch(\GuzzleHttp\Exception\ClientException $e){
             Log::info("ClientException",["result" => $e]);
+            $auth = self::build_auth($clientGateway, $request);
+            $url = $clientGateway->url;
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body="Connection failure";
+            $logRquest->exception_type=3;
+            $logRquest->request_type=3;
+            $logRquest->url = $url;
+            $logRquest->save();
             throw new Exception("Connection failure", 1);
         } catch(Exception $e){
             Log::info("Exception",["result" => $e]);
+            $auth = self::build_auth($clientGateway, $request);
+            $url = $clientGateway->url;
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body="Connection failure";
+            $logRquest->exception_type=3;
+            $logRquest->request_type=3;
+            $logRquest->url = $url;
+            $logRquest->save();
             throw new Exception("Connection failure", 1);
         }
     }
 
     public function execute(Request $request, $id){
         $clientGateway = ClientGateway::find($id);
-
+        $user = $request->user();
         if(!$clientGateway)
             throw new Exception("Error the gateway doesn't exist", 1);
 
@@ -258,9 +276,27 @@ class ClientGatewayController extends Controller
             
         } catch(\GuzzleHttp\Exception\ClientException $e){
             Log::info("ClientException",["result" => $e]);
+            $auth = self::build_auth($clientGateway, $request);
+            $url = $clientGateway->url . ClientGateway::URL_GENERIC_PATH . "?" . self::build_http_query($auth["query"]);
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body=$e->getMessage();
+            $logRquest->exception_type=3;
+            $logRquest->request_type=3;
+            $logRquest->url = $url;
+            $logRquest->save();
             throw new Exception("Connection failure", 1);
         } catch(Exception $e){
             Log::info("Exception",["result" => $e]);
+            $auth = self::build_auth($clientGateway, $request);
+            $url = $clientGateway->url . ClientGateway::URL_GENERIC_PATH . "?" . self::build_http_query($auth["query"]);
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body=$e->getMessage();
+            $logRquest->exception_type=3;
+            $logRquest->request_type=3;
+            $logRquest->url = $url;
+            $logRquest->save();
             throw new Exception("Connection failure", 1);
         }
     }

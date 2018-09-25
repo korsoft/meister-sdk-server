@@ -13,6 +13,7 @@ class LogRequests extends Model
     
     const TYPE_TREE_REQUEST = 1;
     const TYPE_ENDPOINT_REQUEST = 2;
+    const TYPE_TEST_CONNECTION_REQUEST = 3;
     
     const NO_EXCEPTION = 1;
     const JSON_EXCEPTION= 2;

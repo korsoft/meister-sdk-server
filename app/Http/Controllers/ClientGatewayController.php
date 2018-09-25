@@ -207,6 +207,15 @@ class ClientGatewayController extends Controller
            if($response["response"]->getStatusCode()!="200")
                throw new Exception("Connection failure", 1);
 
+
+            $logRquest = new LogRequests();
+            $logRquest->user_id = $user->id;
+            $logRquest->body="Test connection success";
+            $logRquest->exception_type=LogRequests::NO_EXCEPTION;
+            $logRquest->request_type=LogRequests::TYPE_TEST_CONNECTION_REQUEST;
+            $logRquest->url = $clientGateway->url;
+            $logRquest->save();
+
             return [];
 
         } catch(\GuzzleHttp\Exception\ClientException $e){
@@ -259,10 +268,21 @@ class ClientGatewayController extends Controller
                 if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
                     $report = $result["d"]["results"][0];
                     if(isset($report["Json"])){
-                        //Log::info("Report json",["result"=>$report["Json"]]);
+                         $auth = self::build_auth($clientGateway, $request);
+                         $url = $clientGateway->url . ClientGateway::URL_GENERIC_PATH . "?" . self::build_http_query($auth["query"]);
+                        $logRquest = new LogRequests();
+                        $logRquest->user_id = $user->id;
+                        $logRquest->url = $url;
+                        $logRquest->body=$body;
                         if(self::isJson($report["Json"])){
+                            $logRquest->exception_type=LogRequests::NO_EXCEPTION;
+                            $logRquest->request_type=LogRequests::TYPE_TREE_REQUEST;
+                            $logRquest->save();
                             return json_decode($report["Json"], true);
                         } else {
+                            $logRquest->exception_type=LogRequests::JSON_EXCEPTION;
+                            $logRquest->request_type=LogRequests::TYPE_TREE_REQUEST;
+                            $logRquest->save();
                             return response()->json(array(
                                 'code'      =>  404,
                                 'message'   =>  "Invalid JSON Response"
@@ -362,6 +382,14 @@ class ClientGatewayController extends Controller
                                 
                                 
                             }
+
+                            $logRquest = new LogRequests();
+                            $logRquest->user_id = $user->id;
+                            $logRquest->body=$body;
+                            $logRquest->exception_type=LogRequests::NO_EXCEPTION;
+                            $logRquest->request_type=LogRequests::TYPE_TREE_REQUEST;
+                            $logRquest->url = $response["url"];
+                            $logRquest->save();
 
                             return [
                                 "url" => $response["url"],
@@ -468,6 +496,13 @@ class ClientGatewayController extends Controller
                 if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
                     $report = $result["d"]["results"][0];
                     if($compression === 'O'){
+                        $logRquest = new LogRequests();
+                        $logRquest->user_id = $user->id;
+                        $logRquest->body=$body;
+                        $logRquest->exception_type=LogRequests::NO_EXCEPTION;
+                        $logRquest->request_type=LogRequests::TYPE_ENDPOINT_REQUEST;
+                        $logRquest->url = $response["url"];
+                        $logRquest->save();
                         return [
                             "url" => $response["url"],
                             "data" => self::StringToByteArray($report["Json"]),
@@ -479,6 +514,13 @@ class ClientGatewayController extends Controller
                         //$json =  stripslashes($json);
                         Log::info("Result in execute_endpoint (json): " .$json);
                         if(self::isJson($json)){
+                            $logRquest = new LogRequests();
+                            $logRquest->user_id = $user->id;
+                            $logRquest->body=$body;
+                            $logRquest->exception_type=LogRequests::NO_EXCEPTION;
+                            $logRquest->request_type=LogRequests::TYPE_ENDPOINT_REQUEST;
+                            $logRquest->url = $response["url"];
+                            $logRquest->save();
                             return [
                                 "url" => $response["url"],
                                 "data" => json_decode($json, true)

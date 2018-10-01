@@ -140,7 +140,8 @@ class UserController extends Controller
             'email' => 'required|max:100',
             'first_name' => 'required|max:120',
             'last_name' => 'required|max:120',
-            'type' => 'required'
+            'type' => 'required',
+            'password' => 'required'
         ]);
 
         if($request->input('type')==User::TYPE_SYSTEM_ADMIN && $userInSession->type != User::TYPE_SYSTEM_ADMIN)
@@ -151,7 +152,7 @@ class UserController extends Controller
         $user->email = $request->input('email');
         $user->first_name = $request->input('first_name');
         $user->last_name = $request->input('last_name');
-        $user->password = bcrypt(User::DEFAULT_PASSWORD);
+        $user->password = bcrypt($request->input('password'));
 
       
 
@@ -291,7 +292,7 @@ class UserController extends Controller
         $request->validate([
             'email' => 'required|max:100',
             'first_name' => 'required|max:120',
-            'last_name' => 'required|max:120',
+            'last_name' => 'required|max:120'
         ]);
 
         $user = User::find($id);
@@ -331,7 +332,10 @@ class UserController extends Controller
         $user->email = $request->input('email');
         $user->first_name = $request->input('first_name');
         $user->last_name = $request->input('last_name');
-        $user->password = bcrypt(User::DEFAULT_PASSWORD);
+        if($request->input('password') != null){
+            $user->password = bcrypt($request->input('password'));    
+        }
+        
 
         $user->save();
 

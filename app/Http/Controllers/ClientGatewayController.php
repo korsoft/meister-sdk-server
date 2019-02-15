@@ -321,6 +321,21 @@ class ClientGatewayController extends Controller
         }
     }
 
+    protected static function getJson($string) {
+        $json = json_decode($string,true);
+        if(json_last_error() == JSON_ERROR_NONE)
+            return $json;
+        $string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);
+        $string = preg_replace('/\s+/', '',$string);
+        $string = stripslashes($string);
+        $json = json_decode($string,true);
+        if(json_last_error() == JSON_ERROR_NONE)
+            return $json;
+        else
+            return null;
+      
+    }
+
     public function execute_changes(Request $request, $id){
         $user = $request->user();
         
@@ -490,7 +505,7 @@ class ClientGatewayController extends Controller
 
             $result = json_decode($body, true);
 
-            Log::info("Result",["response" => $result]);
+            //Log::info("Result",["response" => $result]);
 
             if(is_array($result) && count($result)>0){
                 if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
@@ -510,10 +525,9 @@ class ClientGatewayController extends Controller
                         ]; 
                     }
                     if(isset($report["Json"])){
-                        $json = str_replace("\\n", '', $report["Json"]);
-                        //$json =  stripslashes($json);
-                        Log::info("Result in execute_endpoint (json): " .$json);
-                        if(self::isJson($json)){
+                        $json = self::getJson($report["Json"]);
+                        Log::info("Result in execute_endpoint (json): ",["json"=>$json]);
+                        if($json != null){
                             $logRquest = new LogRequests();
                             $logRquest->user_id = $user->id;
                             $logRquest->body=$body;
@@ -523,7 +537,7 @@ class ClientGatewayController extends Controller
                             $logRquest->save();
                             return [
                                 "url" => $response["url"],
-                                "data" => json_decode($json, true)
+                                "data" => $json
                             ]; 
                         } else {
                             $logRquest = new LogRequests();

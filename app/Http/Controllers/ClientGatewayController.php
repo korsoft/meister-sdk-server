@@ -326,7 +326,7 @@ class ClientGatewayController extends Controller
         if(json_last_error() == JSON_ERROR_NONE)
             return $json;
         $string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);
-        $string = preg_replace('/\s+/', '',$string);
+        $string = preg_replace('/\s+/', ' ',$string);
         $string = stripslashes($string);
         $json = json_decode($string,true);
         if(json_last_error() == JSON_ERROR_NONE)

@@ -526,7 +526,7 @@ class ClientGatewayController extends Controller
                     }
                     if(isset($report["Json"])){
                         $json = self::getJson($report["Json"]);
-                        Log::info("Result in execute_endpoint (json): ",["json"=>$json]);
+                        //Log::info("Result in execute_endpoint (json): ",["json"=>$json]);
                         if($json != null){
                             $logRquest = new LogRequests();
                             $logRquest->user_id = $user->id;

@@ -274,11 +274,12 @@ class ClientGatewayController extends Controller
                         $logRquest->user_id = $user->id;
                         $logRquest->url = $url;
                         $logRquest->body=$body;
-                        if(self::isJson($report["Json"])){
+                        $json_string = self::formatJSONAsString($report["Json"]);
+                        if(self::isJson($json_string)){
                             $logRquest->exception_type=LogRequests::NO_EXCEPTION;
                             $logRquest->request_type=LogRequests::TYPE_TREE_REQUEST;
                             $logRquest->save();
-                            return json_decode($report["Json"], true);
+                            return json_decode($json_string, true);
                         } else {
                             $logRquest->exception_type=LogRequests::JSON_EXCEPTION;
                             $logRquest->request_type=LogRequests::TYPE_TREE_REQUEST;
@@ -319,6 +320,28 @@ class ClientGatewayController extends Controller
             $logRquest->save();
             throw new Exception("Connection failure", 1);
         }
+    }
+
+    protected static function formatJSONAsString($string){
+        $matches = [];
+
+        //Log::info("JSON====================================>");
+        //Log::info($string);
+        preg_match_all('/(?:"JSON":")(.*?)(]"|}")/', $string, $matches);
+
+        Log::info("Matches count:" . count($matches));
+       
+        if(count($matches)>0){
+            foreach ($matches[0] as $key => $value) {
+                $value_content = substr($value,8,strlen($value)-9 );
+                $new_value_content =  str_replace('"','\"',$value_content);
+                //Log::info($value . " ---- " . $new_value_content);
+                $new_value = "\"JSON\":\"" . $new_value_content . "\"";
+                Log::info($new_value);
+                $string = str_replace($value, $new_value, $string);
+            }
+        } 
+        return $string;
     }
 
     protected static function getJson($string) {

@@ -246,6 +246,7 @@ class ClientGatewayController extends Controller
     }
 
     public function execute(Request $request, $id){
+        Log::info("execute_endpoint ================================>");
         $clientGateway = ClientGateway::find($id);
         $user = $request->user();
         if(!$clientGateway)
@@ -337,7 +338,7 @@ class ClientGatewayController extends Controller
                 $new_value_content =  str_replace('"','\"',$value_content);
                 //Log::info($value . " ---- " . $new_value_content);
                 $new_value = "\"JSON\":\"" . $new_value_content . "\"";
-                Log::info($new_value);
+                //Log::info($new_value);
                 $string = str_replace($value, $new_value, $string);
             }
         } 
@@ -351,12 +352,18 @@ class ClientGatewayController extends Controller
         $string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);
         $string = preg_replace('/\s+/', ' ',$string);
         $string = stripslashes($string);
+        Log::info("JSON ==============> " . $string);
         $json = json_decode($string,true);
         if(json_last_error() == JSON_ERROR_NONE)
             return $json;
         else
             return null;
       
+    }
+
+    protected static function removeslashes($string){
+        $string=implode("",explode("\\",$string));
+        return stripslashes(trim($string));
     }
 
     public function execute_changes(Request $request, $id){
@@ -492,6 +499,8 @@ class ClientGatewayController extends Controller
     }
 
     public function execute_endpoint(Request $request, $id){
+
+        Log::info("execute_endpoint ================================>");
         $user = $request->user();
         
         $request->validate([
@@ -521,8 +530,13 @@ class ClientGatewayController extends Controller
 
             $response = self::response_connection($clientGateway, $request);
 
-           if($response["response"]->getStatusCode()!="200")
-               throw new Exception("Connection failure", 1);
+           if($response["response"]->getStatusCode()!="200"){
+               return response()->json(array(
+                                'code'      =>  404,
+                                'message'   =>  "Invalid JSON Response",
+                                'Json' => $response["response"]->getBody()
+                            ), 404);
+           }
 
             $body = (string) $response["response"]->getBody();
 
@@ -549,6 +563,7 @@ class ClientGatewayController extends Controller
                     }
                     if(isset($report["Json"])){
                         $json_string = self::formatJSONAsString($report["Json"]);
+                        //Log::info("Json",["JSON"=>$json_string]);
                         $json = self::getJson($json_string);
                         //Log::info("Result in execute_endpoint (json): ",["json"=>$json]);
                         if($json != null){
@@ -573,7 +588,8 @@ class ClientGatewayController extends Controller
                             $logRquest->save();
                             return response()->json(array(
                                 'code'      =>  404,
-                                'message'   =>  "Invalid JSON Response"
+                                'message'   =>  "Invalid JSON Response",
+                                'Json' => $body
                             ), 404);
                         }
                         
@@ -597,7 +613,11 @@ class ClientGatewayController extends Controller
             $logRquest->exception_type=4;
             $logRquest->request_type=2;
             $logRquest->save();
-            throw new Exception("Connection failure", 1);
+            return response()->json(array(
+                                'code'      =>  404,
+                                'message'   =>  "Invalid JSON Response",
+                                'Json' => $e->getResponse()->getBody()
+                            ), 404);
         } catch(Exception $e){
             Log::info("Exception",["result" => $e]);
              $auth = self::build_auth($clientGateway, $request);
@@ -609,7 +629,11 @@ class ClientGatewayController extends Controller
             $logRquest->exception_type=5;
             $logRquest->request_type=2;
             $logRquest->save();
-            throw new Exception("Connection failure", 1);
+             return response()->json(array(
+                                'code'      =>  404,
+                                'message'   =>  "Invalid JSON Response",
+                                'Json' => $e->getMessage()
+                            ), 404);
         }
 
     }

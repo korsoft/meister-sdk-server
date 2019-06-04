@@ -246,7 +246,7 @@ class ClientGatewayController extends Controller
     }
 
     public function execute(Request $request, $id){
-        Log::info("execute_endpoint ================================>");
+        
         $clientGateway = ClientGateway::find($id);
         $user = $request->user();
         if(!$clientGateway)
@@ -500,6 +500,7 @@ class ClientGatewayController extends Controller
 
     public function execute_endpoint(Request $request, $id){
 
+        ini_set('memory_limit','256M');
         Log::info("execute_endpoint ================================>");
         $user = $request->user();
         

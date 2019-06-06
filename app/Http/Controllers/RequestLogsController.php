@@ -26,6 +26,8 @@ class RequestLogsController extends Controller
      */
     public function index(Request $request)
     {
+        ini_set('memory_limit','256M');
+        
         $limit = $request->input("limit");
         $page = $request->input("page");
         

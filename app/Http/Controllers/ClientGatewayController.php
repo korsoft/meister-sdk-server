@@ -548,7 +548,7 @@ class ClientGatewayController extends Controller
             if(is_array($result) && count($result)>0){
                 if(isset($result["d"]) && isset($result["d"]["results"]) && isset($result["d"]["results"][0]) ){
                     $report = $result["d"]["results"][0];
-                    if($compression === 'O'){
+                    if($compression === 'O' || $compression === 'B'){
                         $logRquest = new LogRequests();
                         $logRquest->user_id = $user->id;
                         $logRquest->body=$body;
@@ -819,8 +819,9 @@ class ClientGatewayController extends Controller
                 "\$format" => "json"
             ];
         } else if($endpoint != null && $json != null){
-            if($compression=="I"){
-                $json= self::compress($json);
+            if($compression=="I" || $compression=="B"){
+                Log::info("JSON to compress:" . $json);
+                $json= "'" . self::compress($json) . "'";
             }
 
             $params = "[{\"COMPRESSION\":\"" . ($compression!=null ? $compression : "") . "\"".$ADDITIONAL_PARAMS."}]";
@@ -841,12 +842,7 @@ class ClientGatewayController extends Controller
 
     public static function compress($string){
         $stringCompress = gzencode($string);
-        $stringhex="";
-        for ($i=0; $i<strlen($stringCompress); $i++){
-            $ord = ord($stringCompress[$i]);
-            $hexCode = dechex($ord);
-            $stringhex .= substr('0'.$hexCode, -2);
-        }
+        $stringhex=strtoupper(bin2hex($stringCompress));
 
         return $stringhex;
     }

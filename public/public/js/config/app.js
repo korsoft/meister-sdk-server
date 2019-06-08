@@ -157,4 +157,14 @@ meister.constant('COOKIE_MAX_TIMEOUT_REQUEST',60); //in minutes
     app.config(function($httpProvider) {
       $httpProvider.interceptors.push('httpResponseInterceptor');
   });
+
+    app.config(function (blockUIConfig) {
+        var template = '  <div class="block-ui-overlay"></div>' +
+                       '    <div class="block-ui-message-container">' +
+                       '     <div class="block-ui-message">' +
+                       '       <img src="./public/images/loading.gif"  width="64px">' +
+                       '     </div>' +
+                       '  </div>';
+      blockUIConfig.template = template;
+    });
 })(meister);

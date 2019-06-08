@@ -36,7 +36,9 @@ class RequestLogsController extends Controller
         if($limit){
             $logs->take($limit);
         
-            return $logs->paginate($limit) ;
+            $data =  $logs->paginate($limit) ;
+
+            return $data;
         }else{
             $logs->get();
         }

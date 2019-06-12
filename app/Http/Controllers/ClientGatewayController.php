@@ -201,6 +201,18 @@ class ClientGatewayController extends Controller
             throw new Exception("Error the gateway doesn't exist", 1);
 
         try {
+
+            $clients = ClientGatewayRelation::where("gateway_id",$clientGateway->id)->with("client")->with("gateway")->get();
+
+            Log::info("clients",["c"=>$clients]);
+            if($clients){
+                foreach ($clients as $client) {
+                    Log::info("SAP NUMBER:".$client->client->sap_number);
+                    $request->request->add(['client_number' => $client->client->sap_number]);
+                    
+                    break;
+                }
+            }
             
             $response = self::response_connection($clientGateway, $request);
 
@@ -835,7 +847,7 @@ class ClientGatewayController extends Controller
         }
         $client_number = $request->input("client_number");
         if($client_number!=null){
-            $query["sap_client"] = $client_number;
+            $query["sap-client"] = $client_number;
         }
         return $query;
     }

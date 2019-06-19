@@ -848,6 +848,9 @@ class ClientGatewayController extends Controller
         $client_number = $request->input("client_number");
         if($client_number!=null){
             $query["sap-client"] = $client_number;
+        } else {
+            throw new Exception("sap client is missing", 1);
+            
         }
         return $query;
     }

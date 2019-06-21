@@ -63,8 +63,8 @@ class OAuth2Handler
     public function __construct(
                     GrantType\GrantTypeInterface $grantType,
                     GrantType\GrantTypeInterface $refreshTokenGrantType = null,
-                    Signer\ClientCredentials\ClientCredentialsSigner $clientCredentialsSigner = null,
-                    Signer\AccessToken\AccessTokenSigner $accessTokenSigner = null
+                    Signer\ClientCredentials\SignerInterface $clientCredentialsSigner = null,
+                    Signer\AccessToken\SignerInterface $accessTokenSigner = null
     ) {
         $this->grantType = $grantType;
         $this->refreshTokenGrantType = $refreshTokenGrantType;
@@ -76,7 +76,7 @@ class OAuth2Handler
         }
 
         if ($this->accessTokenSigner === null) {
-            $this->accessTokenSigner = new Signer\AccessToken\BasicAuth();
+            $this->accessTokenSigner = new Signer\AccessToken\BearerAuth();
         }
 
         $this->tokenPersistence = new Persistence\NullTokenPersistence();
@@ -183,7 +183,17 @@ class OAuth2Handler
             }
         }
 
-        return $this->rawToken ? $this->rawToken->getAccessToken() : null;
+        return $this->rawToken? $this->rawToken->getAccessToken(): null;
+    }
+
+    /**
+     * Gets the current Token object
+     *
+     * @return Token\RawToken|null
+     */
+    public function getRawToken()
+    {
+        return $this->rawToken;
     }
 
     protected function signRequest($request)

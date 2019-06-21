@@ -18,7 +18,7 @@ class FileTokenPersistence implements TokenPersistenceInterface
 
     public function saveToken(TokenInterface $token)
     {
-        file_put_contents($this->filepath, json_encode($token->serialize()));
+        file_put_contents($this->filepath, json_encode($token->serialize()), LOCK_EX);
     }
 
     public function restoreToken(TokenInterface $token)
@@ -41,5 +41,10 @@ class FileTokenPersistence implements TokenPersistenceInterface
         if (file_exists($this->filepath)) {
             @unlink($this->filepath);
         }
+    }
+
+    public function hasToken()
+    {
+        return file_exists($this->filepath);
     }
 }

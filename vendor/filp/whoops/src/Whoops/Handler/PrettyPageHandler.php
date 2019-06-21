@@ -97,6 +97,7 @@ class PrettyPageHandler extends Handler
         "idea"     => "idea://open?file=%file&line=%line",
         "vscode"   => "vscode://file/%file:%line",
         "atom"     => "atom://core/open/file?filename=%file&line=%line",
+        "espresso" => "x-espresso://open?filepath=%file&lines=%line",
     ];
 
     /**
@@ -205,16 +206,18 @@ class PrettyPageHandler extends Handler
             "frame_code"                 => $this->getResource("views/frame_code.html.php"),
             "env_details"                => $this->getResource("views/env_details.html.php"),
 
-            "title"          => $this->getPageTitle(),
-            "name"           => explode("\\", $inspector->getExceptionName()),
-            "message"        => $inspector->getExceptionMessage(),
-            "docref_url"     => $inspector->getExceptionDocrefUrl(),
-            "code"           => $code,
-            "plain_exception" => Formatter::formatExceptionPlain($inspector),
-            "frames"         => $frames,
-            "has_frames"     => !!count($frames),
-            "handler"        => $this,
-            "handlers"       => $this->getRun()->getHandlers(),
+            "title"            => $this->getPageTitle(),
+            "name"             => explode("\\", $inspector->getExceptionName()),
+            "message"          => $inspector->getExceptionMessage(),
+            "previousMessages" => $inspector->getPreviousExceptionMessages(),
+            "docref_url"       => $inspector->getExceptionDocrefUrl(),
+            "code"             => $code,
+            "previousCodes"    => $inspector->getPreviousExceptionCodes(),
+            "plain_exception"  => Formatter::formatExceptionPlain($inspector),
+            "frames"           => $frames,
+            "has_frames"       => !!count($frames),
+            "handler"          => $this,
+            "handlers"         => $this->getRun()->getHandlers(),
 
             "active_frames_tab" => count($frames) && $frames->offsetGet(0)->isApplication() ?  'application' : 'all',
             "has_frames_tabs"   => $this->getApplicationPaths(),
@@ -389,7 +392,7 @@ class PrettyPageHandler extends Handler
      *       return "http://stackoverflow.com";
      *   });
      * @param string $identifier
-     * @param string $resolver
+     * @param string|callable $resolver
      */
     public function addEditor($identifier, $resolver)
     {
@@ -505,6 +508,10 @@ class PrettyPageHandler extends Handler
                 $callback = call_user_func($this->editor, $filePath, $line);
             } else {
                 $callback = call_user_func($this->editors[$this->editor], $filePath, $line);
+            }
+
+            if (empty($callback)) {
+                return [];
             }
 
             if (is_string($callback)) {
@@ -698,7 +705,7 @@ class PrettyPageHandler extends Handler
 
         $values = $superGlobal;
         foreach ($blacklisted as $key) {
-            if (isset($superGlobal[$key])) {
+            if (isset($superGlobal[$key]) && is_string($superGlobal[$key])) {
                 $values[$key] = str_repeat('*', strlen($superGlobal[$key]));
             }
         }

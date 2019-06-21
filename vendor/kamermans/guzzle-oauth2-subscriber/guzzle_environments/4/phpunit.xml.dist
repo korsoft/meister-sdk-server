@@ -5,6 +5,8 @@
         <testsuite name="All Tests">
             <directory>../../tests</directory>
             <exclude>../../tests/OAuth2MiddlewareTest.php</exclude>
+            <exclude>../../tests/Persistence/SimpleCacheTokenPersistenceTest.php</exclude>
+            <exclude>../../tests/Persistence/Laravel5CacheTokenPersistenceTest.php</exclude>
         </testsuite>
     </testsuites>
     <filter>

@@ -16,7 +16,7 @@ toc_footers:
 # Info
 
 Welcome to the generated API reference.
-[Get Postman Collection](http://localhost/docs/collection.json)
+[Get Postman Collection](docs/docs/collection.json)
 
 <!-- END_INFO -->
 
@@ -27,10 +27,10 @@ Welcome to the generated API reference.
 > Example request:
 
 ```bash
-curl -X GET -G "/oauth/authorize" 
+curl -X GET -G "/docs/oauth/authorize" 
 ```
 ```javascript
-const url = new URL("/oauth/authorize");
+const url = new URL("/docs/oauth/authorize");
 
 let headers = {
     "Accept": "application/json",
@@ -65,10 +65,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/oauth/authorize" 
+curl -X POST "/docs/oauth/authorize" 
 ```
 ```javascript
-const url = new URL("/oauth/authorize");
+const url = new URL("/docs/oauth/authorize");
 
 let headers = {
     "Accept": "application/json",
@@ -96,10 +96,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/oauth/authorize" 
+curl -X DELETE "/docs/oauth/authorize" 
 ```
 ```javascript
-const url = new URL("/oauth/authorize");
+const url = new URL("/docs/oauth/authorize");
 
 let headers = {
     "Accept": "application/json",
@@ -127,10 +127,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/oauth/token" 
+curl -X POST "/docs/oauth/token" 
 ```
 ```javascript
-const url = new URL("/oauth/token");
+const url = new URL("/docs/oauth/token");
 
 let headers = {
     "Accept": "application/json",
@@ -158,10 +158,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/oauth/tokens" 
+curl -X GET -G "/docs/oauth/tokens" 
 ```
 ```javascript
-const url = new URL("/oauth/tokens");
+const url = new URL("/docs/oauth/tokens");
 
 let headers = {
     "Accept": "application/json",
@@ -196,10 +196,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/oauth/tokens/1" 
+curl -X DELETE "/docs/oauth/tokens/1" 
 ```
 ```javascript
-const url = new URL("/oauth/tokens/1");
+const url = new URL("/docs/oauth/tokens/1");
 
 let headers = {
     "Accept": "application/json",
@@ -227,10 +227,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/oauth/token/refresh" 
+curl -X POST "/docs/oauth/token/refresh" 
 ```
 ```javascript
-const url = new URL("/oauth/token/refresh");
+const url = new URL("/docs/oauth/token/refresh");
 
 let headers = {
     "Accept": "application/json",
@@ -258,10 +258,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/oauth/clients" 
+curl -X GET -G "/docs/oauth/clients" 
 ```
 ```javascript
-const url = new URL("/oauth/clients");
+const url = new URL("/docs/oauth/clients");
 
 let headers = {
     "Accept": "application/json",
@@ -296,10 +296,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/oauth/clients" 
+curl -X POST "/docs/oauth/clients" 
 ```
 ```javascript
-const url = new URL("/oauth/clients");
+const url = new URL("/docs/oauth/clients");
 
 let headers = {
     "Accept": "application/json",
@@ -327,10 +327,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "/oauth/clients/1" 
+curl -X PUT "/docs/oauth/clients/1" 
 ```
 ```javascript
-const url = new URL("/oauth/clients/1");
+const url = new URL("/docs/oauth/clients/1");
 
 let headers = {
     "Accept": "application/json",
@@ -358,10 +358,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/oauth/clients/1" 
+curl -X DELETE "/docs/oauth/clients/1" 
 ```
 ```javascript
-const url = new URL("/oauth/clients/1");
+const url = new URL("/docs/oauth/clients/1");
 
 let headers = {
     "Accept": "application/json",
@@ -389,10 +389,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/oauth/scopes" 
+curl -X GET -G "/docs/oauth/scopes" 
 ```
 ```javascript
-const url = new URL("/oauth/scopes");
+const url = new URL("/docs/oauth/scopes");
 
 let headers = {
     "Accept": "application/json",
@@ -427,10 +427,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/oauth/personal-access-tokens" 
+curl -X GET -G "/docs/oauth/personal-access-tokens" 
 ```
 ```javascript
-const url = new URL("/oauth/personal-access-tokens");
+const url = new URL("/docs/oauth/personal-access-tokens");
 
 let headers = {
     "Accept": "application/json",
@@ -465,10 +465,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/oauth/personal-access-tokens" 
+curl -X POST "/docs/oauth/personal-access-tokens" 
 ```
 ```javascript
-const url = new URL("/oauth/personal-access-tokens");
+const url = new URL("/docs/oauth/personal-access-tokens");
 
 let headers = {
     "Accept": "application/json",
@@ -496,10 +496,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/oauth/personal-access-tokens/1" 
+curl -X DELETE "/docs/oauth/personal-access-tokens/1" 
 ```
 ```javascript
-const url = new URL("/oauth/personal-access-tokens/1");
+const url = new URL("/docs/oauth/personal-access-tokens/1");
 
 let headers = {
     "Accept": "application/json",
@@ -526,10 +526,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/api/login" 
+curl -X POST "/docs/api/login" 
 ```
 ```javascript
-const url = new URL("/api/login");
+const url = new URL("/docs/api/login");
 
 let headers = {
     "Accept": "application/json",
@@ -556,10 +556,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/api/logout" 
+curl -X POST "/docs/api/logout" 
 ```
 ```javascript
-const url = new URL("/api/logout");
+const url = new URL("/docs/api/logout");
 
 let headers = {
     "Accept": "application/json",
@@ -586,10 +586,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/types" 
+curl -X GET -G "/docs/api/types" 
 ```
 ```javascript
-const url = new URL("/api/types");
+const url = new URL("/docs/api/types");
 
 let headers = {
     "Accept": "application/json",
@@ -623,10 +623,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "/api/users/1/update_my_user" 
+curl -X PUT "/docs/api/users/1/update_my_user" 
 ```
 ```javascript
-const url = new URL("/api/users/1/update_my_user");
+const url = new URL("/docs/api/users/1/update_my_user");
 
 let headers = {
     "Accept": "application/json",
@@ -653,10 +653,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clientgateways/1/test_connection" 
+curl -X GET -G "/docs/api/clientgateways/1/test_connection" 
 ```
 ```javascript
-const url = new URL("/api/clientgateways/1/test_connection");
+const url = new URL("/docs/api/clientgateways/1/test_connection");
 
 let headers = {
     "Accept": "application/json",
@@ -690,10 +690,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clientgateways/1/execute" 
+curl -X GET -G "/docs/api/clientgateways/1/execute" 
 ```
 ```javascript
-const url = new URL("/api/clientgateways/1/execute");
+const url = new URL("/docs/api/clientgateways/1/execute");
 
 let headers = {
     "Accept": "application/json",
@@ -727,10 +727,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/api/clientgateways/1/execute" 
+curl -X POST "/docs/api/clientgateways/1/execute" 
 ```
 ```javascript
-const url = new URL("/api/clientgateways/1/execute");
+const url = new URL("/docs/api/clientgateways/1/execute");
 
 let headers = {
     "Accept": "application/json",
@@ -757,10 +757,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/api/clientgateways/1/execute_endpoint" 
+curl -X POST "/docs/api/clientgateways/1/execute_endpoint" 
 ```
 ```javascript
-const url = new URL("/api/clientgateways/1/execute_endpoint");
+const url = new URL("/docs/api/clientgateways/1/execute_endpoint");
 
 let headers = {
     "Accept": "application/json",
@@ -788,10 +788,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clients" 
+curl -X GET -G "/docs/api/clients" 
 ```
 ```javascript
-const url = new URL("/api/clients");
+const url = new URL("/docs/api/clients");
 
 let headers = {
     "Accept": "application/json",
@@ -826,10 +826,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/api/clients" 
+curl -X POST "/docs/api/clients" 
 ```
 ```javascript
-const url = new URL("/api/clients");
+const url = new URL("/docs/api/clients");
 
 let headers = {
     "Accept": "application/json",
@@ -857,10 +857,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clients/1" 
+curl -X GET -G "/docs/api/clients/1" 
 ```
 ```javascript
-const url = new URL("/api/clients/1");
+const url = new URL("/docs/api/clients/1");
 
 let headers = {
     "Accept": "application/json",
@@ -895,10 +895,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "/api/clients/1" 
+curl -X PUT "/docs/api/clients/1" 
 ```
 ```javascript
-const url = new URL("/api/clients/1");
+const url = new URL("/docs/api/clients/1");
 
 let headers = {
     "Accept": "application/json",
@@ -928,10 +928,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/api/clients/1" 
+curl -X DELETE "/docs/api/clients/1" 
 ```
 ```javascript
-const url = new URL("/api/clients/1");
+const url = new URL("/docs/api/clients/1");
 
 let headers = {
     "Accept": "application/json",
@@ -959,10 +959,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/users" 
+curl -X GET -G "/docs/api/users" 
 ```
 ```javascript
-const url = new URL("/api/users");
+const url = new URL("/docs/api/users");
 
 let headers = {
     "Accept": "application/json",
@@ -997,10 +997,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/api/users" 
+curl -X POST "/docs/api/users" 
 ```
 ```javascript
-const url = new URL("/api/users");
+const url = new URL("/docs/api/users");
 
 let headers = {
     "Accept": "application/json",
@@ -1028,10 +1028,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/users/1" 
+curl -X GET -G "/docs/api/users/1" 
 ```
 ```javascript
-const url = new URL("/api/users/1");
+const url = new URL("/docs/api/users/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1066,10 +1066,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "/api/users/1" 
+curl -X PUT "/docs/api/users/1" 
 ```
 ```javascript
-const url = new URL("/api/users/1");
+const url = new URL("/docs/api/users/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1099,10 +1099,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/api/users/1" 
+curl -X DELETE "/docs/api/users/1" 
 ```
 ```javascript
-const url = new URL("/api/users/1");
+const url = new URL("/docs/api/users/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1130,10 +1130,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clientgateways" 
+curl -X GET -G "/docs/api/clientgateways" 
 ```
 ```javascript
-const url = new URL("/api/clientgateways");
+const url = new URL("/docs/api/clientgateways");
 
 let headers = {
     "Accept": "application/json",
@@ -1168,10 +1168,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/api/clientgateways" 
+curl -X POST "/docs/api/clientgateways" 
 ```
 ```javascript
-const url = new URL("/api/clientgateways");
+const url = new URL("/docs/api/clientgateways");
 
 let headers = {
     "Accept": "application/json",
@@ -1199,10 +1199,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clientgateways/1" 
+curl -X GET -G "/docs/api/clientgateways/1" 
 ```
 ```javascript
-const url = new URL("/api/clientgateways/1");
+const url = new URL("/docs/api/clientgateways/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1237,10 +1237,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "/api/clientgateways/1" 
+curl -X PUT "/docs/api/clientgateways/1" 
 ```
 ```javascript
-const url = new URL("/api/clientgateways/1");
+const url = new URL("/docs/api/clientgateways/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1270,10 +1270,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/api/clientgateways/1" 
+curl -X DELETE "/docs/api/clientgateways/1" 
 ```
 ```javascript
-const url = new URL("/api/clientgateways/1");
+const url = new URL("/docs/api/clientgateways/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1301,10 +1301,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clientuserrole" 
+curl -X GET -G "/docs/api/clientuserrole" 
 ```
 ```javascript
-const url = new URL("/api/clientuserrole");
+const url = new URL("/docs/api/clientuserrole");
 
 let headers = {
     "Accept": "application/json",
@@ -1339,10 +1339,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/api/clientuserrole" 
+curl -X POST "/docs/api/clientuserrole" 
 ```
 ```javascript
-const url = new URL("/api/clientuserrole");
+const url = new URL("/docs/api/clientuserrole");
 
 let headers = {
     "Accept": "application/json",
@@ -1370,10 +1370,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clientuserrole/1" 
+curl -X GET -G "/docs/api/clientuserrole/1" 
 ```
 ```javascript
-const url = new URL("/api/clientuserrole/1");
+const url = new URL("/docs/api/clientuserrole/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1408,10 +1408,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "/api/clientuserrole/1" 
+curl -X PUT "/docs/api/clientuserrole/1" 
 ```
 ```javascript
-const url = new URL("/api/clientuserrole/1");
+const url = new URL("/docs/api/clientuserrole/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1441,10 +1441,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/api/clientuserrole/1" 
+curl -X DELETE "/docs/api/clientuserrole/1" 
 ```
 ```javascript
-const url = new URL("/api/clientuserrole/1");
+const url = new URL("/docs/api/clientuserrole/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1472,10 +1472,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/requestlogs" 
+curl -X GET -G "/docs/api/requestlogs" 
 ```
 ```javascript
-const url = new URL("/api/requestlogs");
+const url = new URL("/docs/api/requestlogs");
 
 let headers = {
     "Accept": "application/json",
@@ -1509,10 +1509,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/api/requestlogs/all" 
+curl -X DELETE "/docs/api/requestlogs/all" 
 ```
 ```javascript
-const url = new URL("/api/requestlogs/all");
+const url = new URL("/docs/api/requestlogs/all");
 
 let headers = {
     "Accept": "application/json",
@@ -1540,10 +1540,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clientuserrole/byuserid/1" 
+curl -X GET -G "/docs/api/clientuserrole/byuserid/1" 
 ```
 ```javascript
-const url = new URL("/api/clientuserrole/byuserid/1");
+const url = new URL("/docs/api/clientuserrole/byuserid/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1578,10 +1578,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clientuserrole/byclientanduserid/1/1" 
+curl -X GET -G "/docs/api/clientuserrole/byclientanduserid/1/1" 
 ```
 ```javascript
-const url = new URL("/api/clientuserrole/byclientanduserid/1/1");
+const url = new URL("/docs/api/clientuserrole/byclientanduserid/1/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1616,10 +1616,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/api/clientuserrole/1/1" 
+curl -X DELETE "/docs/api/clientuserrole/1/1" 
 ```
 ```javascript
-const url = new URL("/api/clientuserrole/1/1");
+const url = new URL("/docs/api/clientuserrole/1/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1647,10 +1647,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "/api/clientuserrole/1/1" 
+curl -X PUT "/docs/api/clientuserrole/1/1" 
 ```
 ```javascript
-const url = new URL("/api/clientuserrole/1/1");
+const url = new URL("/docs/api/clientuserrole/1/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1678,10 +1678,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/api/users/changedefault/1" 
+curl -X POST "/docs/api/users/changedefault/1" 
 ```
 ```javascript
-const url = new URL("/api/users/changedefault/1");
+const url = new URL("/docs/api/users/changedefault/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1708,10 +1708,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "/api/clientgatewayrelation" 
+curl -X POST "/docs/api/clientgatewayrelation" 
 ```
 ```javascript
-const url = new URL("/api/clientgatewayrelation");
+const url = new URL("/docs/api/clientgatewayrelation");
 
 let headers = {
     "Accept": "application/json",
@@ -1738,10 +1738,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "/api/clientgatewayrelation/1" 
+curl -X DELETE "/docs/api/clientgatewayrelation/1" 
 ```
 ```javascript
-const url = new URL("/api/clientgatewayrelation/1");
+const url = new URL("/docs/api/clientgatewayrelation/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1768,10 +1768,10 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "/api/clientgatewayrelation/getbygatewaytidandcurrentuser/1" 
+curl -X GET -G "/docs/api/clientgatewayrelation/getbygatewaytidandcurrentuser/1" 
 ```
 ```javascript
-const url = new URL("/api/clientgatewayrelation/getbygatewaytidandcurrentuser/1");
+const url = new URL("/docs/api/clientgatewayrelation/getbygatewaytidandcurrentuser/1");
 
 let headers = {
     "Accept": "application/json",

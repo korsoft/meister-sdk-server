@@ -10,18 +10,24 @@ use App\Role;
 use App\ClientUserRole;
 use Exception;
 
+/**
+ * Controller that handles the relation between Client and User
+ */
 class ClientUserRoleController extends Controller
 {
 
+    /**
+     * A default contructor 
+     *
+     * 
+     */
     public function __construct()
     {
          $this->middleware('checkSystemIntegrator');
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Function no mapped in the routes
      */
     public function index()
     {
@@ -29,9 +35,7 @@ class ClientUserRoleController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Function no mapped in the routes
      */
     public function create()
     {
@@ -41,8 +45,7 @@ class ClientUserRoleController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
      */
     public function store(Request $request)
     {
@@ -156,10 +159,7 @@ class ClientUserRoleController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Function no mapped in the routes
      */
     public function show($id)
     {
@@ -167,10 +167,9 @@ class ClientUserRoleController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Recovers  the record of ClientUserRole for the given user's id.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param $user_id The user's Id. 
      */
     public function getByUserId($user_id)
     {
@@ -179,10 +178,10 @@ class ClientUserRoleController extends Controller
 
 
     /**
-     * Display the specified resource.
+     * Recovers  the record of ClientUserRole for the given user's id and client's id.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param $client_id The client's Id
+     * @param $user_id The user's Id 
      */
     public function getByClientAndUserId($client_id,$user_id)
     {
@@ -190,10 +189,7 @@ class ClientUserRoleController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Function no mapped in the routes
      */
     public function edit($id)
     {
@@ -204,9 +200,8 @@ class ClientUserRoleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id The user's Id 
      */
     public function update(Request $request, $id)
     {
@@ -291,11 +286,11 @@ class ClientUserRoleController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the record that matches with $client_id and $user_id. 
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $client_id The client's Id
+     * @param $user_id The user's Id 
      */
     public function updateByClientAndUserId(Request $request,$client_id,$user_id)
     {
@@ -394,10 +389,10 @@ class ClientUserRoleController extends Controller
 
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified record that marches the $id.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id The id of the ClientUserRole to match
      */
     public function destroy(Request $request,$id)
     {
@@ -452,10 +447,11 @@ class ClientUserRoleController extends Controller
 
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified record that marches the $id.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $client_id The client's Id
+     * @param $user_id The user's Id 
      */
     public function destroyByClientUserId(Request $request,$client_id,$user_id)
     {

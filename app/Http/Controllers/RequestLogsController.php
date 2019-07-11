@@ -10,13 +10,16 @@ use Log;
 use App\LogRequests;
 
 /**
- * @group Request's Logs
- *
- * APIs for retreiving logs for the requests
+ * Controller thah handles the Logs of each request.
  */
 class RequestLogsController extends Controller
 {
 
+    /**
+     * A default contructor 
+     *
+     * 
+     */
     public function __construct()
     {
         $this->middleware('checkClientAdmin');
@@ -25,6 +28,8 @@ class RequestLogsController extends Controller
 
     /**
      * Display all the logs for the request
+     * 
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
      */
     public function index(Request $request)
     {
@@ -49,6 +54,8 @@ class RequestLogsController extends Controller
 
      /**
      * Clears all the logs 
+     * 
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
      */
     public function deleteAll(Request $request){
         LogRequests::truncate();

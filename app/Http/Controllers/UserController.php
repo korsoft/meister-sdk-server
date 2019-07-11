@@ -15,13 +15,16 @@ use Exception;
 
 
 /**
- * @group User Controller
- *
- * APIs for user's client management
+ * The controller that handles the user's operation
  */
 
 class UserController extends Controller
 {
+    /**
+     * A default contructor 
+     *
+     * 
+     */
     public function __construct()
     {
         $this->middleware('checkClientAdmin', ['only' => ['index', 'types','store','destroy','update']]);
@@ -35,8 +38,7 @@ class UserController extends Controller
      * For Client Admin  or System Integrator only users that belogns to the same 
      * organization will be displayed with all the roles.
      * 
-     * 
-     * @authenticated
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
      */
     public function index(Request $request)
     {
@@ -72,8 +74,8 @@ class UserController extends Controller
     /**
      * Display a logged user type. 
      * Depending on user logged permission it may display all types or only a valid subset of them. 
-     * 
-     * @authenticated
+     *
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object. 
      */
     public function types(Request $request){
         $user = $request->user();
@@ -133,7 +135,9 @@ class UserController extends Controller
     }
 
 
-  
+    /**
+     * Function no mapped in the routes
+     */
     public function create(Request $request)
     {
         throw new Exception("Error Processing Request", 1);
@@ -143,11 +147,7 @@ class UserController extends Controller
     /**
      * Store a newly created user in database with the given values.
      *
-     * @bodyParam  email string required The email of the user.
-     * @bodyParam  first_name string required The first name  of the user.
-     * @bodyParam  last_name string required The last name  of the user.
-     * @bodyParam  type int required the type of the user 
-     * @bodyParam  password string required The password of the user
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
      */
     public function store(Request $request)
     {
@@ -245,7 +245,7 @@ class UserController extends Controller
     /**
      * Display the specified user that matches with id.
      *
-     * @queryParam  int required $id
+     * @param $id The Id of the User to show
      * 
      */
     public function show($id)
@@ -253,7 +253,9 @@ class UserController extends Controller
         return User::find($id);
     }
 
-    
+    /**
+     * Function no mapped in the routes
+     */
     public function edit($id)
     {
         throw new Exception("Error Processing Request", 1);
@@ -263,10 +265,8 @@ class UserController extends Controller
     /**
      * Updates the user logged in session passing the id as security meassure.
      *
-     * @queryParam  int required id 
-     * @bodyParam  email string required The email of the user.
-     * @bodyParam  first_name string required The first name  of the user.
-     * @bodyParam  last_name string required The last name  of the user.
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id The Id of the User to update just for validation
      */
     public function update_my_user(Request $request, $id){
 
@@ -302,10 +302,8 @@ class UserController extends Controller
      * Updates the user that matches with the given id. The success of the operation
      * will depend on the user permissions
      *
-     * @queryParam int required id 
-     * @bodyParam  email string required The email of the user.
-     * @bodyParam  first_name string required The first name  of the user.
-     * @bodyParam  last_name string required The last name  of the user.
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id The Id of the User to update 
      */
     public function update(Request $request, $id)
     {
@@ -368,7 +366,7 @@ class UserController extends Controller
     /**
      * Remove from database the user that watches with id.
      *
-     * @queryParam  int required $id
+     * @param $id The Id of the User to delete
      * 
      */
     public function destroy(Request $request, $id)
@@ -436,10 +434,10 @@ class UserController extends Controller
     }
 
     /**
-     * Change the deafult user for the especified client based on cliend_id
+     * Change the deafult client for the especified user based on cliend_id
      *
-     * @queryParam  int required id
-     * 
+     * @param Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $client_id The Id of the client to set as deafult 
      */
     public function changeDef(Request $request, $client_id){
 

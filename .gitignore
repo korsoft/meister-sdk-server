@@ -2,3 +2,6 @@
 /node_modules/
 package-lock.json
 .compare.md
+cache/
+.DS_Store
+.compare.md

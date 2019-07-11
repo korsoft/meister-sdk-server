@@ -14,14 +14,28 @@ use Illuminate\Support\Collection;
 use Exception;
 use Log;
 
+/**
+ *A controller that relations between Clien and ClientGawateway 
+ */
 class ClientGatewayRelationController extends Controller
 {
+    /**
+     * A default contructor 
+     *
+     * 
+     */
     public function __construct()
     {
         $this->middleware('checkClientAdmin', 
             ['only' => ['create', 'getByClientId','destroy','show','edit','update','test_connection']]);
 
     }
+
+    /**
+     * Creates a new record of ClientGatewayRelation
+     * 
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     */
 
     public function store(Request $request){
 
@@ -56,6 +70,13 @@ class ClientGatewayRelationController extends Controller
         }
 
     }
+
+    /**
+     * Deletes the record clienGatewayRelation that matches with the given id 
+     * 
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id The id of the record to delete
+     */
 
     public function destroy(Request $request,$id){
 
@@ -101,6 +122,13 @@ class ClientGatewayRelationController extends Controller
     //             return Response(json_encode(array("error"=>"not enougth priveleges")),402);
         
     // }
+
+    /**
+     * Retrieves the list of records that matches with the given gatewayId and the user logged 
+     * 
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $gatewayId GateWay Id.
+     */
 
     public function getByGatewayIdAndCurrentUser(Request $request,$gatewayId){
         $userInSession = $request->user();

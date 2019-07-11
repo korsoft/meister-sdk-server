@@ -10,13 +10,18 @@ use Exception;
 use Log;
 use App\ClientUserRole;
 /**
- * @group Client Controller
+ * A controller that handles operations with clients
  *
- * APIs for client management
+ * 
  */
 class ClientController extends Controller
 {
 
+    /**
+     * A default contructor 
+     *
+     * 
+     */
     public function __construct()
     {
         $this->middleware('checkClientAdmin');
@@ -34,7 +39,7 @@ class ClientController extends Controller
      * 
      * 
      * 
-     * @authenticated
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
      */
     
     public function index(Request $request)
@@ -60,7 +65,11 @@ class ClientController extends Controller
         return [];
     }
 
-  
+
+    /**
+     * Function no mapped in the routes
+     */
+    
     public function create()
     {
         throw new Exception("Error Processing Request", 1);     
@@ -69,8 +78,7 @@ class ClientController extends Controller
     /**
      * Store a newly created client in the datavase.
      *
-     * @bodyParam name string required The name of the Client.
-     * @bodyParam sap_number string required the sap number.
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
      * 
      */
     public function store(Request $request)
@@ -90,7 +98,7 @@ class ClientController extends Controller
     /**
      * Display the specified client  wich matches to the given id paramater.
      *
-     * @queryParam  int required id
+     * @param  $id Id of the client to find
      * 
      */
     public function show($id)
@@ -98,7 +106,9 @@ class ClientController extends Controller
         return Client::find($id);
     }
 
-    
+     /**
+     * Function no mapped in the routes
+     */
     public function edit($id)
     {
         throw new Exception("Error Processing Request", 1);
@@ -108,10 +118,9 @@ class ClientController extends Controller
     /**
      * Update the specified resource by id using the given values.
      *
-     * @queryParam int required id 
-     * @bodyParam name string required The name of the Client.
-     * @bodyParam sap_number string required the sap number.
-     */
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param  $id  the id of the client to update
+    */
     public function update(Request $request, $id)
     {
          $request->validate([
@@ -134,7 +143,7 @@ class ClientController extends Controller
     /**
      * Remove from database the client especified by id.
      *
-     * @queryParam  int  required id
+     * @param $id. The id of the client to delete
      * 
      */
     public function destroy($id)

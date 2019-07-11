@@ -19,12 +19,13 @@ use kamermans\OAuth2\OAuth2Middleware;
 
 use Log;
 /**
- * @group Client Gateway Controller
- *
- * APIs for client and gateway relation management
+ *A controller that handles operations with table ClientGateway
  */
 class ClientGatewayController extends Controller
 {
+     /**
+     * A default contructor 
+     */
     public function __construct()
     {
         $this->middleware('checkClientAdmin', 
@@ -34,7 +35,7 @@ class ClientGatewayController extends Controller
 
     /**
      * Display a list Gateways related to client. If user logged is SYSTEM_ADMIN it will display all gateways registered for all clients
-     *
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
      */
     public function index(Request $request)
     {
@@ -55,7 +56,9 @@ class ClientGatewayController extends Controller
         return [];
     }
 
-    
+    /**
+     * Function no mapped in the routes
+     */
     public function create()
     {
         throw new Exception("Error Processing Request", 1);
@@ -65,20 +68,7 @@ class ClientGatewayController extends Controller
      * Creates a new gateway and relates with client.
      *
      
-     * @bodyParam  name string required The name of the gateway.
-     * @bodyParam  url string required The url of the gateway.
-     * @bodyParam  auth_type required Type of authorization.
-     * @bodyParam  username  string The user name for gateway authorization.
-     * @bodyParam  password  string The user password for gateway authorization.
-     * @bodyParam  auth_type string The gateway authorization type.
-     * @bodyParam  digest string The digest for the gateway.
-     * @bodyParam  consumer_key string The key for the gateway authorization.
-     * @bodyParam  consumer_secret string The secret for the gateway authorization.
-     * @bodyParam  token string The token for the gateway authorization.
-     * @bodyParam  token_secret string The token_secret for the gateway authorization.
-     * @bodyParam  client_id_for_oauth2 string The client_id for the oauth2 gateway authorization.
-     * @bodyParam  client_secret_for_oauth2 string The secret for the oauth2 gateway authorization.
-     * @bodyParam  auth_url_for_oauth2 string The url for the oauth2 gateway authorization.
+     * @param   \Illuminate\Http\Request $request The name of the gateway.
      */
     public function store(Request $request)
     {
@@ -120,7 +110,8 @@ class ClientGatewayController extends Controller
      * Display the specified gateway that matches with id. The success 
      * of this endpoint will depends on user permissions.
      *
-     * @queryParam  int required $id
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id The id of the Object ClientGateway to display
      * 
      */
     public function show(Request $request, $id)
@@ -136,7 +127,9 @@ class ClientGatewayController extends Controller
         return null;
     }
 
-   
+    /**
+     * Function no mapped in the routes
+     */
     public function edit($id)
     {
         throw new Exception("Error Processing Request", 1);
@@ -145,21 +138,8 @@ class ClientGatewayController extends Controller
     /**
      * Updates a gateway given  by the id.
      *
-     * @queryParam int required id
-     * @bodyParam  name string required The name of the gateway.
-     * @bodyParam  url string required The url of the gateway.
-     * @bodyParam  auth_type required Type of authorization.
-     * @bodyParam  username  string The user name for gateway authorization.
-     * @bodyParam  password  string The user password for gateway authorization.
-     * @bodyParam  auth_type string The gateway authorization type.
-     * @bodyParam  digest string The digest for the gateway.
-     * @bodyParam  consumer_key string The key for the gateway authorization.
-     * @bodyParam  consumer_secret string The secret for the gateway authorization.
-     * @bodyParam  token string The token for the gateway authorization.
-     * @bodyParam  token_secret string The token_secret for the gateway authorization.
-     * @bodyParam  client_id_for_oauth2 string The client_id for the oauth2 gateway authorization.
-     * @bodyParam  client_secret_for_oauth2 string The secret for the oauth2 gateway authorization.
-     * @bodyParam  auth_url_for_oauth2 string The url for the oauth2 gateway authorization.
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id the id of the resource to update
      */
     public function update(Request $request, $id)
     {
@@ -195,7 +175,8 @@ class ClientGatewayController extends Controller
      * Remove the specified gateway that matches the given id. The success of the 
      * operations depends on the user permissions
      *
-     * @queryParam  int  requiered id
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id The id of the destroy
      */
     public function destroy(Request $request, $id)
     {
@@ -217,7 +198,8 @@ class ClientGatewayController extends Controller
     /**
      * Test the gateway identified by the given id
      *
-     * @queryParam  int  requiered id
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param  $id the id of the ClientGateway
      */
     public function test_connection(Request $request, $id){
         $clientGateway = ClientGateway::find($id);
@@ -285,7 +267,8 @@ class ClientGatewayController extends Controller
     /**
      * Recovers the information from the gateway identified by the id 
      *
-     * @queryParam  int  requiered id
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id The Id of the ClientGatweay to execute
      */
     public function execute(Request $request, $id){
         
@@ -365,6 +348,11 @@ class ClientGatewayController extends Controller
         }
     }
 
+    /** 
+     * Converts a response from Meister API to standard JSON. This function is used as helper in serveral calls to Meister API.
+     * 
+     * @param $string String response that contains JSON value
+    */
     protected static function formatJSONAsString($string){
         $matches = [];
 
@@ -387,6 +375,11 @@ class ClientGatewayController extends Controller
         return $string;
     }
 
+    /**
+     * Return Error in standar JSON 
+     * 
+     * @param $string String response that contains JSON error in Hex format
+     */
     protected static function getJson($string) {
         $json = json_decode($string,true);
         if(json_last_error() == JSON_ERROR_NONE)
@@ -403,6 +396,11 @@ class ClientGatewayController extends Controller
       
     }
 
+    /**
+     * Removes all slashes from string 
+     * 
+     * @param $string String remove slashes.
+     */
     protected static function removeslashes($string){
         $string=implode("",explode("\\",$string));
         return stripslashes(trim($string));
@@ -411,7 +409,8 @@ class ClientGatewayController extends Controller
     /**
      * Recovers the information from the gateway identified by the id 
      *
-     * @queryParam  int  requiered id
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id The Id of the ClientGatweay to execute
      */
     public function execute_changes(Request $request, $id){
         $user = $request->user();
@@ -546,9 +545,10 @@ class ClientGatewayController extends Controller
     }
 
     /**
-     * Executes the endpoint identified by the id 
+     * Recovers the information from the gateway identified by the id 
      *
-     * @queryParam  int  requiered id
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * @param $id The Id of the ClientGatweay to execute
      */
     public function execute_endpoint(Request $request, $id){
 
@@ -692,13 +692,21 @@ class ClientGatewayController extends Controller
     }
 
 
-
+    /**
+     * Verify if the given string is a valid JSON
+     * 
+     * @param $string String to verify
+     */
     protected static function isJson($string) {
         json_decode($string);
         return (json_last_error() == JSON_ERROR_NONE);
     }
 
-
+    /**
+     * Return an equivalent representation of a string into array of Bytes
+     * 
+     * @param $string String to convert
+     */
     protected static function StringToByteArray($st){
         $h = str_replace(array("\\", "\\r","\\n"), '', $st);
         Log::info($st);
@@ -713,6 +721,13 @@ class ClientGatewayController extends Controller
         return $bytes;   
     }
 
+    /**
+     * Tales the $clientGateway objects and creates internally an Authentification method previous the endpoint execution.
+     * 
+     * @param $clientGateway The clientGateway object.
+     * 
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     */
     protected static function build_auth($clientGateway, $request){
         $auth = [];
         if($clientGateway->auth_type == ClientGateway::AUTH_TYPE_BASIC){
@@ -771,6 +786,13 @@ class ClientGatewayController extends Controller
         return $auth;
     }
 
+    /**
+     * Executes a clientGateway to retrieve the information
+     * 
+     * @param $clientGateway clientGateway objetc 
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * 
+     */
     protected static function response_connection($clientGateway, $request){
 
         $clientGuzz = new \GuzzleHttp\Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false), )); 
@@ -792,6 +814,12 @@ class ClientGatewayController extends Controller
         ];
     }
 
+    /**
+     * Creates a http query based on array of parameters
+     * 
+     * @param $query An array of properties to build the string 
+     * 
+     */
     protected static function build_http_query( $query ){
 
         $query_array = array();
@@ -802,7 +830,13 @@ class ClientGatewayController extends Controller
     }
 
 
-
+    /**
+     * Builds a query for the Meister API
+     * 
+     * @param $clientGateway clientGateway objetc 
+     * @param  \Illuminate\Http\Request $request  Object representation of the request. The vales mus be passed by post, put, delete patch o get trough this object.
+     * 
+     */
     protected static function  getQueryParamsForGateway($clientGateway, $request){
         
 
@@ -895,6 +929,12 @@ class ClientGatewayController extends Controller
         return $query;
     }
 
+    /**
+     * Compress the string in gzip format
+     * 
+     * @param $string String to compress  
+     * 
+     */
     public static function compress($string){
         $stringCompress = gzencode($string);
         $stringhex=strtoupper(bin2hex($stringCompress));

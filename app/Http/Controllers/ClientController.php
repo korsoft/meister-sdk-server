@@ -9,7 +9,11 @@ use App\User;
 use Exception;
 use Log;
 use App\ClientUserRole;
-
+/**
+ * @group Client Controller
+ *
+ * APIs for client management
+ */
 class ClientController extends Controller
 {
 
@@ -22,10 +26,17 @@ class ClientController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Display a list of Clients based on User's permissions:
+     * 
+     * For a System Admin all clients will be displayed. 
+     * For Client Admin  or System Integrator only users that belogns to the same 
+     * organization will be displayed with all the roles.
+     * 
+     * 
+     * 
+     * @authenticated
      */
+    
     public function index(Request $request)
     {
         
@@ -49,21 +60,18 @@ class ClientController extends Controller
         return [];
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+  
     public function create()
     {
         throw new Exception("Error Processing Request", 1);     
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created client in the datavase.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @bodyParam name string required The name of the Client.
+     * @bodyParam sap_number string required the sap number.
+     * 
      */
     public function store(Request $request)
     {
@@ -80,22 +88,17 @@ class ClientController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified client  wich matches to the given id paramater.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @queryParam  int required id
+     * 
      */
     public function show($id)
     {
         return Client::find($id);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
     public function edit($id)
     {
         throw new Exception("Error Processing Request", 1);
@@ -103,11 +106,11 @@ class ClientController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified resource by id using the given values.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @queryParam int required id 
+     * @bodyParam name string required The name of the Client.
+     * @bodyParam sap_number string required the sap number.
      */
     public function update(Request $request, $id)
     {
@@ -129,10 +132,10 @@ class ClientController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove from database the client especified by id.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @queryParam  int  required id
+     * 
      */
     public function destroy($id)
     {

@@ -4,7 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+/**
+ * @group Client model
+ *
+ * APIs for client and gateway relation management
+ */
 class Client extends Model
 {
 	/**

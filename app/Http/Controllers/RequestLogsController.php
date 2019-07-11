@@ -9,7 +9,11 @@ use Exception;
 use Log;
 use App\LogRequests;
 
-
+/**
+ * @group Request's Logs
+ *
+ * APIs for retreiving logs for the requests
+ */
 class RequestLogsController extends Controller
 {
 
@@ -20,9 +24,7 @@ class RequestLogsController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Display all the logs for the request
      */
     public function index(Request $request)
     {
@@ -45,6 +47,9 @@ class RequestLogsController extends Controller
         
     }
 
+     /**
+     * Clears all the logs 
+     */
     public function deleteAll(Request $request){
         LogRequests::truncate();
         return [];

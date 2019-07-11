@@ -13,6 +13,13 @@ use App\ClientUserRole;
 use Log;
 use Exception;
 
+
+/**
+ * @group User Controller
+ *
+ * APIs for user's client management
+ */
+
 class UserController extends Controller
 {
     public function __construct()
@@ -21,10 +28,15 @@ class UserController extends Controller
 
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     /**
+     * Display a list of user's Client based on User logged permissions:
+     * 
+     * For a System Admin all users will be displayed. 
+     * For Client Admin  or System Integrator only users that belogns to the same 
+     * organization will be displayed with all the roles.
+     * 
+     * 
+     * @authenticated
      */
     public function index(Request $request)
     {
@@ -57,6 +69,12 @@ class UserController extends Controller
         return [];
     }
 
+    /**
+     * Display a logged user type. 
+     * Depending on user logged permission it may display all types or only a valid subset of them. 
+     * 
+     * @authenticated
+     */
     public function types(Request $request){
         $user = $request->user();
 
@@ -115,11 +133,7 @@ class UserController extends Controller
     }
 
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+  
     public function create(Request $request)
     {
         throw new Exception("Error Processing Request", 1);
@@ -127,10 +141,13 @@ class UserController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created user in database with the given values.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @bodyParam  email string required The email of the user.
+     * @bodyParam  first_name string required The first name  of the user.
+     * @bodyParam  last_name string required The last name  of the user.
+     * @bodyParam  type int required the type of the user 
+     * @bodyParam  password string required The password of the user
      */
     public function store(Request $request)
     {
@@ -226,28 +243,31 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified user that matches with id.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @queryParam  int required $id
+     * 
      */
     public function show($id)
     {
         return User::find($id);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
     public function edit($id)
     {
         throw new Exception("Error Processing Request", 1);
         
     }
 
+    /**
+     * Updates the user logged in session passing the id as security meassure.
+     *
+     * @queryParam  int required id 
+     * @bodyParam  email string required The email of the user.
+     * @bodyParam  first_name string required The first name  of the user.
+     * @bodyParam  last_name string required The last name  of the user.
+     */
     public function update_my_user(Request $request, $id){
 
         $userInSession = $request->user();
@@ -279,11 +299,13 @@ class UserController extends Controller
     
 
     /**
-     * Update the specified resource in storage.
+     * Updates the user that matches with the given id. The success of the operation
+     * will depend on the user permissions
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @queryParam int required id 
+     * @bodyParam  email string required The email of the user.
+     * @bodyParam  first_name string required The first name  of the user.
+     * @bodyParam  last_name string required The last name  of the user.
      */
     public function update(Request $request, $id)
     {
@@ -344,10 +366,10 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove from database the user that watches with id.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @queryParam  int required $id
+     * 
      */
     public function destroy(Request $request, $id)
     {
@@ -414,10 +436,10 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Change the deafult user for the especified client based on cliend_id
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @queryParam  int required id
+     * 
      */
     public function changeDef(Request $request, $client_id){
 

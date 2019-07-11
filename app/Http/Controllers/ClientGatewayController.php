@@ -18,7 +18,11 @@ use kamermans\OAuth2\GrantType\PasswordCredentials;
 use kamermans\OAuth2\OAuth2Middleware;
 
 use Log;
-
+/**
+ * @group Client Gateway Controller
+ *
+ * APIs for client and gateway relation management
+ */
 class ClientGatewayController extends Controller
 {
     public function __construct()
@@ -29,9 +33,8 @@ class ClientGatewayController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a list Gateways related to client. If user logged is SYSTEM_ADMIN it will display all gateways registered for all clients
      *
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
@@ -52,21 +55,30 @@ class ClientGatewayController extends Controller
         return [];
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    
     public function create()
     {
         throw new Exception("Error Processing Request", 1);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Creates a new gateway and relates with client.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     
+     * @bodyParam  name string required The name of the gateway.
+     * @bodyParam  url string required The url of the gateway.
+     * @bodyParam  auth_type required Type of authorization.
+     * @bodyParam  username  string The user name for gateway authorization.
+     * @bodyParam  password  string The user password for gateway authorization.
+     * @bodyParam  auth_type string The gateway authorization type.
+     * @bodyParam  digest string The digest for the gateway.
+     * @bodyParam  consumer_key string The key for the gateway authorization.
+     * @bodyParam  consumer_secret string The secret for the gateway authorization.
+     * @bodyParam  token string The token for the gateway authorization.
+     * @bodyParam  token_secret string The token_secret for the gateway authorization.
+     * @bodyParam  client_id_for_oauth2 string The client_id for the oauth2 gateway authorization.
+     * @bodyParam  client_secret_for_oauth2 string The secret for the oauth2 gateway authorization.
+     * @bodyParam  auth_url_for_oauth2 string The url for the oauth2 gateway authorization.
      */
     public function store(Request $request)
     {
@@ -105,10 +117,11 @@ class ClientGatewayController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified gateway that matches with id. The success 
+     * of this endpoint will depends on user permissions.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @queryParam  int required $id
+     * 
      */
     public function show(Request $request, $id)
     {
@@ -123,23 +136,30 @@ class ClientGatewayController extends Controller
         return null;
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+   
     public function edit($id)
     {
         throw new Exception("Error Processing Request", 1);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Updates a gateway given  by the id.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @queryParam int required id
+     * @bodyParam  name string required The name of the gateway.
+     * @bodyParam  url string required The url of the gateway.
+     * @bodyParam  auth_type required Type of authorization.
+     * @bodyParam  username  string The user name for gateway authorization.
+     * @bodyParam  password  string The user password for gateway authorization.
+     * @bodyParam  auth_type string The gateway authorization type.
+     * @bodyParam  digest string The digest for the gateway.
+     * @bodyParam  consumer_key string The key for the gateway authorization.
+     * @bodyParam  consumer_secret string The secret for the gateway authorization.
+     * @bodyParam  token string The token for the gateway authorization.
+     * @bodyParam  token_secret string The token_secret for the gateway authorization.
+     * @bodyParam  client_id_for_oauth2 string The client_id for the oauth2 gateway authorization.
+     * @bodyParam  client_secret_for_oauth2 string The secret for the oauth2 gateway authorization.
+     * @bodyParam  auth_url_for_oauth2 string The url for the oauth2 gateway authorization.
      */
     public function update(Request $request, $id)
     {
@@ -172,10 +192,10 @@ class ClientGatewayController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified gateway that matches the given id. The success of the 
+     * operations depends on the user permissions
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @queryParam  int  requiered id
      */
     public function destroy(Request $request, $id)
     {
@@ -194,6 +214,11 @@ class ClientGatewayController extends Controller
         return $clientGateway;
     }
 
+    /**
+     * Test the gateway identified by the given id
+     *
+     * @queryParam  int  requiered id
+     */
     public function test_connection(Request $request, $id){
         $clientGateway = ClientGateway::find($id);
         $user = $request->user();
@@ -257,6 +282,11 @@ class ClientGatewayController extends Controller
         }
     }
 
+    /**
+     * Recovers the information from the gateway identified by the id 
+     *
+     * @queryParam  int  requiered id
+     */
     public function execute(Request $request, $id){
         
         $clientGateway = ClientGateway::find($id);
@@ -378,6 +408,11 @@ class ClientGatewayController extends Controller
         return stripslashes(trim($string));
     }
 
+    /**
+     * Recovers the information from the gateway identified by the id 
+     *
+     * @queryParam  int  requiered id
+     */
     public function execute_changes(Request $request, $id){
         $user = $request->user();
         
@@ -510,6 +545,11 @@ class ClientGatewayController extends Controller
         }
     }
 
+    /**
+     * Executes the endpoint identified by the id 
+     *
+     * @queryParam  int  requiered id
+     */
     public function execute_endpoint(Request $request, $id){
 
         ini_set('memory_limit','256M');

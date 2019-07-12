@@ -18,7 +18,7 @@ class Role extends Model
 
     
     /**
-     * The attributes that are mass assignable.
+     * The attributes that are mass assignable. For now, 'name','value' are the columns mapped to this object
      *
      * @var array
      */
@@ -26,6 +26,11 @@ class Role extends Model
         'name','value'
     ];
 
+     /**
+     * The attributes that are cast to a given type. For now 'value' => 'integer'
+     *
+     * @var array
+     */
     protected $casts = [
         'value' => 'integer'
     ];

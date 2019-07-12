@@ -23,18 +23,28 @@ class LogRequests extends Model
     const GATEWAY_DOES_NOT_EXISTS= 6;
 
     
-    /**
-     * The attributes that are mass assignable.
+  /**
+     * The attributes that are mass assignable. For now, 'email','first_name','last_name','type','client_id' are the columns mapped to this object
      *
+     * @var array For now 'id','user_id','body','url','exception_type','request_type','created_at','updated_at'
      */
     protected $fillable = [
         'id','user_id','body','url','exception_type','request_type','created_at','updated_at'
     ];
     
+     /**
+     * The attributes that are converted to a dates. 'created_at','updated_at'
+     *
+     * @var array
+     */
     protected $dates= [
         'created_at','updated_at'
     ];
     
+    /**
+     * Return the User related to LogRequest record using $object->user
+     *
+     */
     public function user (){
         return $this->belongsTo('App\User');
     }

@@ -7,14 +7,18 @@ use Closure;
 use App\User;
 use Exception;
 
+
+/**
+ * Validates Each request to be called by Admin User
+ */
 class CheckClientAdmin
 {
     /**
-     * Handle an incoming request.
+     * Check if user logged is not of System Admin Type, then it trows an Exception.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @return mixed
+     * 
      */
     public function handle($request, Closure $next)
     {

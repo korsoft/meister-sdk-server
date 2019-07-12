@@ -7,6 +7,9 @@ use Closure;
 use Exception;
 use App\User;
 
+/**
+ * Validates Each request to be called by System Admin User
+ */
 class CheckSystemAdmin
 {
     /**
